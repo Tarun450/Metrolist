@@ -53,6 +53,10 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.metrolist.music.R
+import com.metrolist.music.ui.custom.theme.CustomColorBackground
+import com.metrolist.music.ui.custom.theme.CustomColorPrimary
+import com.metrolist.music.ui.custom.theme.CustomColorSurfaceHigh
+import com.metrolist.music.ui.custom.theme.CustomColorTextSecondary
 import com.metrolist.music.ui.screens.OptionStats
 
 @Composable
@@ -77,10 +81,13 @@ fun <E> ChipsRow(
                 label = { Text(label) },
                 selected = currentValue == value,
                 colors = FilterChipDefaults.filterChipColors(
-                    containerColor = containerColor,
+                    containerColor = CustomColorSurfaceHigh,
+                    labelColor = CustomColorTextSecondary,
+                    selectedContainerColor = CustomColorPrimary,
+                    selectedLabelColor = CustomColorBackground,
                 ),
                 onClick = { onValueUpdate(value) },
-                shape = RoundedCornerShape(16.dp),
+                shape = RoundedCornerShape(percent = 50),
                 border = null
             )
 
@@ -195,10 +202,13 @@ fun <Int> ChoiceChipsRow(
                         label = { Text(label) },
                         selected = currentValue == value,
                         colors = FilterChipDefaults.filterChipColors(
-                            containerColor = containerColor,
+                            containerColor = CustomColorSurfaceHigh,
+                            labelColor = CustomColorTextSecondary,
+                            selectedContainerColor = CustomColorPrimary,
+                            selectedLabelColor = CustomColorBackground,
                         ),
                         onClick = { onValueUpdate(value) },
-                        shape = RoundedCornerShape(16.dp),
+                        shape = RoundedCornerShape(percent = 50),
                         border = null
                     )
                 }
