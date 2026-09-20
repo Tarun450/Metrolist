@@ -1151,8 +1151,10 @@ fun HomeScreen(
         onRefresh = viewModel::refresh,
         indicator = {
             Indicator(
-                isRefreshing = isRefreshing,
                 state = pullRefreshState,
+                isRefreshing = isRefreshing,
+                containerColor = CustomColorSurfaceHigh,
+                color = CustomColorPrimary,
                 modifier =
                     Modifier
                         .align(Alignment.TopCenter)
