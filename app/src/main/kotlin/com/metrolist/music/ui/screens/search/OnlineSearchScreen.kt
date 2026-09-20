@@ -71,6 +71,12 @@ import com.metrolist.music.playback.queues.ListQueue
 import com.metrolist.music.playback.queues.YouTubeQueue
 import com.metrolist.music.ui.component.LocalMenuState
 import com.metrolist.music.ui.component.YouTubeListItem
+import com.metrolist.music.ui.custom.theme.CustomColorBackground
+import com.metrolist.music.ui.custom.theme.CustomColorDivider
+import com.metrolist.music.ui.custom.theme.CustomColorPrimary
+import com.metrolist.music.ui.custom.theme.CustomColorSecondary
+import com.metrolist.music.ui.custom.theme.CustomColorTextPrimary
+import com.metrolist.music.ui.custom.theme.CustomColorTextSecondary
 import com.metrolist.music.ui.menu.YouTubeAlbumMenu
 import com.metrolist.music.ui.menu.YouTubeArtistMenu
 import com.metrolist.music.ui.menu.YouTubePlaylistMenu
@@ -129,7 +135,7 @@ fun OnlineSearchScreen(
         modifier =
             Modifier
                 .fillMaxSize()
-                .background(if (pureBlack) Color.Black else MaterialTheme.colorScheme.background),
+                .background(if (pureBlack) Color.Black else CustomColorBackground),
     ) {
         // Show parsed URL item at the top if present
         if (viewState.isUrlQuery && viewState.parsedUrlItem != null) {
@@ -143,7 +149,7 @@ fun OnlineSearchScreen(
                     Text(
                         text = stringResource(R.string.parsed_from_link),
                         style = MaterialTheme.typography.labelMedium,
-                        color = MaterialTheme.colorScheme.primary,
+                        color = CustomColorPrimary,
                         modifier = Modifier.padding(bottom = 8.dp),
                     )
                 }
@@ -360,13 +366,13 @@ fun OnlineSearchScreen(
                                         }
                                     }
                                 },
-                            ).background(if (pureBlack) Color.Black else MaterialTheme.colorScheme.surface)
-                            .animateItem(),
+                            ).animateItem(),
                 )
             }
 
             item(key = "parsed_url_divider") {
                 HorizontalDivider(
+                    color = CustomColorDivider,
                     modifier =
                         Modifier
                             .padding(vertical = 8.dp)
@@ -415,6 +421,7 @@ fun OnlineSearchScreen(
         if (viewState.items.isNotEmpty() && viewState.history.size + viewState.suggestions.size > 0) {
             item(key = "search_divider") {
                 HorizontalDivider(
+                    color = CustomColorDivider,
                     modifier = Modifier.animateItem(),
                 )
             }
@@ -633,8 +640,7 @@ fun OnlineSearchScreen(
                                     }
                                 }
                             },
-                        ).background(if (pureBlack) Color.Black else MaterialTheme.colorScheme.surface)
-                        .animateItem(),
+                        ).animateItem(),
             )
         }
     }
@@ -656,18 +662,20 @@ fun SuggestionItem(
             modifier
                 .fillMaxWidth()
                 .height(SuggestionItemHeight)
-                .background(if (pureBlack) Color.Black else MaterialTheme.colorScheme.surface)
+                .background(if (pureBlack) Color.Black else Color.Transparent)
                 .clickable(onClick = onClick)
                 .windowInsetsPadding(WindowInsets.systemBars.only(WindowInsetsSides.Horizontal)),
     ) {
         Icon(
             painterResource(if (online) R.drawable.search else R.drawable.history),
             contentDescription = null,
+            tint = if (online) CustomColorTextSecondary else CustomColorSecondary,
             modifier = Modifier.padding(horizontal = 16.dp).alpha(0.5f),
         )
 
         Text(
             text = query,
+            color = CustomColorTextPrimary,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
             modifier = Modifier.weight(1f),
@@ -681,6 +689,7 @@ fun SuggestionItem(
                 Icon(
                     painter = painterResource(R.drawable.close),
                     contentDescription = null,
+                    tint = CustomColorTextSecondary,
                 )
             }
         }
@@ -692,6 +701,7 @@ fun SuggestionItem(
             Icon(
                 painter = painterResource(R.drawable.arrow_top_left),
                 contentDescription = null,
+                tint = CustomColorTextSecondary,
             )
         }
     }

@@ -105,6 +105,9 @@ import com.metrolist.music.ui.component.NavigationTitle
 import com.metrolist.music.ui.component.YouTubeListItem
 import com.metrolist.music.ui.component.shimmer.ListItemPlaceHolder
 import com.metrolist.music.ui.component.shimmer.ShimmerHost
+import com.metrolist.music.ui.custom.theme.CustomColorBackground
+import com.metrolist.music.ui.custom.theme.CustomColorSurfaceHigh
+import com.metrolist.music.ui.custom.theme.CustomColorTextSecondary
 import com.metrolist.music.ui.menu.YouTubeAlbumMenu
 import com.metrolist.music.ui.menu.YouTubeArtistMenu
 import com.metrolist.music.ui.menu.YouTubePlaylistMenu
@@ -364,7 +367,7 @@ fun OnlineSearchResult(
         modifier =
             Modifier
                 .fillMaxSize()
-                .background(if (pureBlack) Color.Black else MaterialTheme.colorScheme.background)
+                .background(if (pureBlack) Color.Black else CustomColorBackground)
                 .windowInsetsPadding(WindowInsets.systemBars.only(WindowInsetsSides.Top)),
     ) {
         // Google-style SearchBar with Material 3 design
@@ -377,7 +380,7 @@ fun OnlineSearchResult(
                 Text(
                     text = stringResource(R.string.search_yt_music),
                     style = MaterialTheme.typography.bodyLarge,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    color = CustomColorTextSecondary,
                 )
             },
             leadingIcon = {
@@ -387,7 +390,7 @@ fun OnlineSearchResult(
                     Icon(
                         painter = painterResource(R.drawable.arrow_back),
                         contentDescription = stringResource(R.string.dismiss),
-                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                        tint = CustomColorTextSecondary,
                     )
                 }
             },
@@ -401,7 +404,7 @@ fun OnlineSearchResult(
                         Icon(
                             painter = painterResource(R.drawable.close),
                             contentDescription = null,
-                            tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                            tint = CustomColorTextSecondary,
                         )
                     }
                 }
@@ -424,13 +427,13 @@ fun OnlineSearchResult(
                         if (pureBlack) {
                             MaterialTheme.colorScheme.surface
                         } else {
-                            MaterialTheme.colorScheme.surfaceContainerHigh
+                            CustomColorSurfaceHigh
                         },
                     unfocusedContainerColor =
                         if (pureBlack) {
                             MaterialTheme.colorScheme.surface
                         } else {
-                            MaterialTheme.colorScheme.surfaceContainerHigh
+                            CustomColorSurfaceHigh
                         },
                     focusedBorderColor = Color.Transparent,
                     unfocusedBorderColor = Color.Transparent,

@@ -18,7 +18,6 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
@@ -65,6 +64,11 @@ import com.metrolist.music.constants.SearchSourceKey
 import com.metrolist.music.db.entities.SearchHistory
 import com.metrolist.music.playback.queues.YouTubeQueue
 import com.metrolist.music.ui.component.HideOnScrollFAB
+import com.metrolist.music.ui.custom.theme.CustomColorBackground
+import com.metrolist.music.ui.custom.theme.CustomColorPrimary
+import com.metrolist.music.ui.custom.theme.CustomColorSurfaceHigh
+import com.metrolist.music.ui.custom.theme.CustomColorTextPrimary
+import com.metrolist.music.ui.custom.theme.CustomColorTextSecondary
 import com.metrolist.music.utils.SearchRoutes
 import com.metrolist.music.utils.rememberEnumPreference
 import com.metrolist.music.utils.rememberPreference
@@ -193,10 +197,10 @@ fun SearchScreen(
                                     .focusRequester(focusRequester),
                             textStyle =
                                 TextStyle(
-                                    color = MaterialTheme.colorScheme.onSurface,
+                                    color = CustomColorTextPrimary,
                                     fontSize = 16.sp,
                                 ),
-                            cursorBrush = SolidColor(MaterialTheme.colorScheme.primary),
+                            cursorBrush = SolidColor(CustomColorPrimary),
                             singleLine = true,
                             decorationBox = { innerTextField ->
                                 if (query.text.isEmpty()) {
@@ -210,7 +214,7 @@ fun SearchScreen(
                                             ),
                                         style =
                                             TextStyle(
-                                                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
+                                                color = CustomColorTextSecondary,
                                                 fontSize = 16.sp,
                                             ),
                                     )
@@ -233,7 +237,7 @@ fun SearchScreen(
                                     Icon(
                                         painter = painterResource(R.drawable.close),
                                         contentDescription = null,
-                                        tint = MaterialTheme.colorScheme.onSurface,
+                                        tint = CustomColorTextSecondary,
                                     )
                                 }
                             }
@@ -256,7 +260,7 @@ fun SearchScreen(
                                             },
                                         ),
                                     contentDescription = null,
-                                    tint = MaterialTheme.colorScheme.onSurface,
+                                    tint = CustomColorTextSecondary,
                                 )
                             }
                         }
@@ -267,17 +271,17 @@ fun SearchScreen(
                         Icon(
                             painter = painterResource(R.drawable.arrow_back),
                             contentDescription = stringResource(R.string.dismiss),
-                            tint = MaterialTheme.colorScheme.onSurface,
+                            tint = CustomColorTextSecondary,
                         )
                     }
                 },
                 colors =
                     TopAppBarDefaults.topAppBarColors(
-                        containerColor = if (pureBlack) Color.Black else MaterialTheme.colorScheme.surfaceContainer,
+                        containerColor = if (pureBlack) Color.Black else CustomColorSurfaceHigh,
                     ),
             )
         },
-        containerColor = if (pureBlack) Color.Black else MaterialTheme.colorScheme.background,
+        containerColor = if (pureBlack) Color.Black else CustomColorBackground,
     ) { paddingValues ->
         Box(
             modifier =

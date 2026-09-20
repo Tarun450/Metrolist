@@ -63,6 +63,9 @@ import com.metrolist.music.ui.component.EmptyPlaceholder
 import com.metrolist.music.ui.component.LocalMenuState
 import com.metrolist.music.ui.component.PlaylistListItem
 import com.metrolist.music.ui.component.SongListItem
+import com.metrolist.music.ui.custom.theme.CustomColorBackground
+import com.metrolist.music.ui.custom.theme.CustomColorTextPrimary
+import com.metrolist.music.ui.custom.theme.CustomColorTextSecondary
 import com.metrolist.music.ui.menu.SongMenu
 import com.metrolist.music.viewmodels.LocalFilter
 import com.metrolist.music.viewmodels.LocalSearchViewModel
@@ -110,7 +113,7 @@ fun LocalSearchScreen(
         modifier =
             Modifier
                 .fillMaxSize()
-                .background(if (pureBlack) Color.Black else MaterialTheme.colorScheme.background)
+                .background(if (pureBlack) Color.Black else CustomColorBackground)
                 .let { base ->
                     if (isLandscape) {
                         base.windowInsetsPadding(
@@ -167,12 +170,14 @@ fun LocalSearchScreen(
                                         },
                                     ),
                                 style = MaterialTheme.typography.titleLarge,
+                                color = CustomColorTextPrimary,
                                 modifier = Modifier.weight(1f),
                             )
 
                             Icon(
                                 painter = painterResource(R.drawable.navigate_next),
                                 contentDescription = null,
+                                tint = CustomColorTextSecondary,
                             )
                         }
                     }
