@@ -65,12 +65,14 @@ private val CustomDarkColorScheme = ColorScheme(
     inverseSurface = CustomColorTextPrimary,
     inverseOnSurface = CustomColorBackground,
 
-    // Containers (used by MaterialTheme.colorScheme.surfaceContainer*)
-    surfaceContainerLowest = CustomColorSurfaceLowest,
-    surfaceContainerLow = CustomColorSurface,
-    surfaceContainer = CustomColorSurfaceHigh,
-    surfaceContainerHigh = CustomColorSurfaceHighest,
+    // Material 3 extended surface roles (required by ColorScheme in material3 1.5.0-alpha27)
+    surfaceBright = CustomColorSurfaceHighest,
+    surfaceDim = CustomColorBackground,
+    surfaceContainer = CustomColorSurface,
+    surfaceContainerHigh = CustomColorSurfaceHigh,
     surfaceContainerHighest = CustomColorSurfaceHighest,
+    surfaceContainerLow = CustomColorSurfaceLowest,
+    surfaceContainerLowest = CustomColorBackground,
 
     // Primary (Emerald)
     primary = CustomColorPrimary,
@@ -79,17 +81,35 @@ private val CustomDarkColorScheme = ColorScheme(
     onPrimaryContainer = Color(0xFFD1FAE5),    // light mint for text on container
     inversePrimary = Color(0xFF059669),
 
+    // Primary fixed roles (mapped from emerald tokens for dark-first scheme)
+    primaryFixed = Color(0xFFD1FAE5),          // lightest emerald — same as onPrimaryContainer
+    primaryFixedDim = Color(0xFF6EE7B7),       // mid emerald tint
+    onPrimaryFixed = CustomColorBackground,
+    onPrimaryFixedVariant = Color(0xFF064E3B), // deep emerald container
+
     // Secondary (Indigo)
     secondary = CustomColorSecondary,
     onSecondary = CustomColorBackground,
     secondaryContainer = Color(0xFF1E1B4B),    // deep indigo container
     onSecondaryContainer = Color(0xFFE0E7FF),
 
+    // Secondary fixed roles
+    secondaryFixed = Color(0xFFE0E7FF),        // lightest indigo — same as onSecondaryContainer
+    secondaryFixedDim = Color(0xFFA5B4FC),     // mid indigo tint
+    onSecondaryFixed = CustomColorBackground,
+    onSecondaryFixedVariant = Color(0xFF1E1B4B),
+
     // Tertiary (Amber)
     tertiary = CustomColorTertiary,
     onTertiary = CustomColorBackground,
     tertiaryContainer = Color(0xFF451A03),     // deep amber container
     onTertiaryContainer = Color(0xFFFEF3C7),
+
+    // Tertiary fixed roles
+    tertiaryFixed = Color(0xFFFEF3C7),         // lightest amber — same as onTertiaryContainer
+    tertiaryFixedDim = Color(0xFFFBBF24),      // mid amber tint
+    onTertiaryFixed = CustomColorBackground,
+    onTertiaryFixedVariant = Color(0xFF451A03),
 
     // Structural
     outline = CustomColorDivider,
