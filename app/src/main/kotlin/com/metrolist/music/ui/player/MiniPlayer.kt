@@ -121,6 +121,17 @@ import coil3.request.allowHardware
 import coil3.toBitmap
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import com.metrolist.music.ui.custom.theme.CustomColorBackground
+import com.metrolist.music.ui.custom.theme.CustomColorDivider
+import com.metrolist.music.ui.custom.theme.CustomColorError
+import com.metrolist.music.ui.custom.theme.CustomColorPrimary
+import com.metrolist.music.ui.custom.theme.CustomColorSurface
+import com.metrolist.music.ui.custom.theme.CustomColorSurfaceHigh
+import com.metrolist.music.ui.custom.theme.CustomColorSurfaceHighest
+import com.metrolist.music.ui.custom.theme.CustomColorSurfaceLowest
+import com.metrolist.music.ui.custom.theme.CustomColorTextMetadata
+import com.metrolist.music.ui.custom.theme.CustomColorTextPrimary
+import com.metrolist.music.ui.custom.theme.CustomColorTextSecondary
 import com.metrolist.music.ui.theme.PlayerColorExtractor
 
 /**
@@ -287,20 +298,20 @@ private fun NewMiniPlayer(
 
     // Memoize colors
     val backgroundColor = when (miniPlayerBackground) {
-        MiniPlayerBackgroundStyle.DEFAULT    -> MaterialTheme.colorScheme.surfaceContainer
-        MiniPlayerBackgroundStyle.TRANSPARENT -> Color.Black.copy(alpha = 0.25f)
-        MiniPlayerBackgroundStyle.BLUR       -> MaterialTheme.colorScheme.surfaceContainer
-        MiniPlayerBackgroundStyle.GRADIENT   -> MaterialTheme.colorScheme.surfaceContainer
-        MiniPlayerBackgroundStyle.PURE_BLACK -> Color.Black
+        MiniPlayerBackgroundStyle.DEFAULT -> CustomColorSurface
+        MiniPlayerBackgroundStyle.TRANSPARENT -> CustomColorBackground.copy(alpha = 0.25f)
+        MiniPlayerBackgroundStyle.BLUR -> CustomColorSurfaceHigh
+        MiniPlayerBackgroundStyle.GRADIENT -> CustomColorSurfaceHigh
+        MiniPlayerBackgroundStyle.PURE_BLACK -> CustomColorBackground
     }
     val forceLightColors = !useDarkTheme && (miniPlayerBackground == MiniPlayerBackgroundStyle.PURE_BLACK ||
             miniPlayerBackground == MiniPlayerBackgroundStyle.BLUR ||
             miniPlayerBackground == MiniPlayerBackgroundStyle.GRADIENT)
 
-    val primaryColor = if (forceLightColors) Color.White else MaterialTheme.colorScheme.primary
-    val outlineColor = if (forceLightColors) Color.White else MaterialTheme.colorScheme.outline
-    val onSurfaceColor = if (forceLightColors) Color.White else MaterialTheme.colorScheme.onSurface
-    val errorColor = if (forceLightColors) Color(0xFFFF6B6B) else MaterialTheme.colorScheme.error
+    val primaryColor = if (forceLightColors) Color.White else CustomColorPrimary
+    val outlineColor = if (forceLightColors) Color.White else CustomColorDivider
+    val onSurfaceColor = if (forceLightColors) Color.White else CustomColorTextPrimary
+    val errorColor = if (forceLightColors) Color.White else CustomColorError
 
     Box(
         modifier =
@@ -381,7 +392,7 @@ private fun NewMiniPlayer(
                     .offset { IntOffset(offsetXAnimatable.value.roundToInt(), 0) }
                     .clip(RoundedCornerShape(32.dp))
                     .background(color = backgroundColor)
-                    .border(1.dp, outlineColor.copy(alpha = 0.3f), RoundedCornerShape(32.dp))
+                    .border(1.dp, outlineColor.copy(alpha = 0.7f), RoundedCornerShape(32.dp))
                     .clickable(
                         interactionSource = interactionSource,
                         indication = LocalIndication.current,
@@ -411,8 +422,8 @@ private fun NewMiniPlayer(
                 MiniPlayerBackgroundStyle.GRADIENT -> {
                     val colors = if (gradientColors.isNotEmpty()) gradientColors
                     else listOf(
-                        MaterialTheme.colorScheme.surfaceContainer,
-                        MaterialTheme.colorScheme.surfaceContainer,
+                        CustomColorSurface,
+                        CustomColorSurfaceHigh,
                     )
                     Box(
                         Modifier
@@ -560,7 +571,7 @@ private fun NewMiniPlayerPlayButton(
                 Modifier
                     .size(40.dp)
                     .clip(CircleShape)
-                    .border(1.dp, outlineColor.copy(alpha = 0.3f), CircleShape)
+                    .border(1.dp, outlineColor.copy(alpha = 0.85f), CircleShape)
                     .clickable {
                         if (isListenTogetherGuest) {
                             playerConnection.toggleMute()
@@ -597,7 +608,7 @@ private fun NewMiniPlayerPlayButton(
                     modifier =
                         Modifier
                             .fillMaxSize()
-                            .background(Color.Black.copy(alpha = 0.4f), CircleShape),
+                            .background(CustomColorBackground.copy(alpha = 0.55f), CircleShape),
                 )
                 Icon(
                     painter =
@@ -611,7 +622,7 @@ private fun NewMiniPlayerPlayButton(
                             },
                         ),
                     contentDescription = null,
-                    tint = Color.White,
+                    tint = CustomColorTextPrimary,
                     modifier = Modifier.size(20.dp),
                 )
             }
@@ -653,7 +664,7 @@ private fun NewMiniPlayerSongInfo(
                  if (metadata.artists.any { it.name.isNotBlank() }) {
                      Text(
                          text = metadata.artists.joinToArtistString(" ${stringResource(R.string.and)} ") { it.name },
-                         color = onSurfaceColor.copy(alpha = 0.7f),
+                         color = CustomColorTextSecondary,
                         fontSize = 12.sp,
                         maxLines = 1,
                         overflow = TextOverflow.Clip,
@@ -736,8 +747,8 @@ private fun LegacyMiniPlayer(
             (600 / (1f + kotlin.math.exp(-(-11.44748 * swipeSensitivity + 9.04945)))).roundToInt()
         }
 
-    val primaryColor = MaterialTheme.colorScheme.primary
-    val trackColor = MaterialTheme.colorScheme.surfaceVariant
+    val primaryColor = CustomColorPrimary
+    val trackColor = CustomColorDivider
 
     val interactionSource = remember { MutableInteractionSource() }
 
@@ -750,9 +761,9 @@ private fun LegacyMiniPlayer(
                 .clip(RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp))
                 .background(
                     if (pureBlack && isSystemInDarkTheme()) {
-                        Color.Black
+                        CustomColorBackground
                     } else {
-                        MaterialTheme.colorScheme.surfaceContainer
+                        CustomColorSurface
                     },
                 ).clickable(
                     interactionSource = interactionSource,
@@ -959,7 +970,7 @@ private fun LegacyMiniMediaInfo(
                 modifier =
                     Modifier
                         .fillMaxSize()
-                        .background(MaterialTheme.colorScheme.surfaceVariant),
+                        .background(CustomColorSurfaceLowest),
             )
 
             val thumbnailUrl =
@@ -988,7 +999,7 @@ private fun LegacyMiniMediaInfo(
                     Icon(
                         painter = painterResource(R.drawable.info),
                         contentDescription = null,
-                        tint = MaterialTheme.colorScheme.error,
+                        tint = CustomColorError,
                         modifier = Modifier.align(Alignment.Center),
                     )
                 }
@@ -1003,7 +1014,7 @@ private fun LegacyMiniMediaInfo(
         ) {
             Text(
                 text = mediaMetadata.title,
-                color = MaterialTheme.colorScheme.onSurface,
+                color = CustomColorTextPrimary,
                 fontSize = 16.sp,
                 fontWeight = FontWeight.Bold,
                 maxLines = 1,
@@ -1014,7 +1025,7 @@ private fun LegacyMiniMediaInfo(
              if (mediaMetadata.artists.any { it.name.isNotBlank() }) {
                  Text(
                      text = mediaMetadata.artists.joinToArtistString(" ${stringResource(R.string.and)} ") { it.name },
-                     color = MaterialTheme.colorScheme.secondary,
+                     color = CustomColorTextSecondary,
                     fontSize = 12.sp,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
@@ -1049,10 +1060,10 @@ private fun SubscribeButton(
                 .clip(CircleShape)
                 .border(
                     width = 1.dp,
-                    color = if (isSubscribed) primaryColor.copy(alpha = 0.5f) else outlineColor.copy(alpha = 0.3f),
+                    color = if (isSubscribed) primaryColor.copy(alpha = 0.5f) else outlineColor.copy(alpha = 0.8f),
                     shape = CircleShape,
                 ).background(
-                    color = if (isSubscribed) primaryColor.copy(alpha = 0.1f) else Color.Transparent,
+                    color = if (isSubscribed) primaryColor.copy(alpha = 0.1f) else CustomColorSurfaceHigh,
                     shape = CircleShape,
                 ).clickable {
                     database.transaction {
@@ -1077,7 +1088,7 @@ private fun SubscribeButton(
         Icon(
             painter = painterResource(if (isSubscribed) R.drawable.subscribed else R.drawable.subscribe),
             contentDescription = null,
-            tint = if (isSubscribed) primaryColor else onSurfaceColor.copy(alpha = 0.7f),
+            tint = if (isSubscribed) primaryColor else CustomColorTextSecondary,
             modifier = Modifier.size(20.dp),
         )
     }
@@ -1105,17 +1116,17 @@ private fun FavoriteButton(
                 .clip(CircleShape)
                 .border(
                     width = 1.dp,
-                    color = if (isLiked) errorColor.copy(alpha = 0.5f) else outlineColor.copy(alpha = 0.3f),
+                    color = if (isLiked) errorColor.copy(alpha = 0.5f) else outlineColor.copy(alpha = 0.8f),
                     shape = CircleShape,
                 ).background(
-                    color = if (isLiked) errorColor.copy(alpha = 0.1f) else Color.Transparent,
+                    color = if (isLiked) errorColor.copy(alpha = 0.1f) else CustomColorSurfaceHigh,
                     shape = CircleShape,
                 ).clickable { playerConnection.service.toggleLike() },
     ) {
         Icon(
             painter = painterResource(if (isLiked) R.drawable.favorite else R.drawable.favorite_border),
             contentDescription = null,
-            tint = if (isLiked) errorColor else onSurfaceColor.copy(alpha = 0.7f),
+            tint = if (isLiked) errorColor else CustomColorTextSecondary,
             modifier = Modifier.size(20.dp),
         )
     }

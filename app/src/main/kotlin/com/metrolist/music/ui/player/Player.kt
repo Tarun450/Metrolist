@@ -173,6 +173,15 @@ import com.metrolist.music.ui.component.ResizableIconButton
 import com.metrolist.music.ui.component.SquigglySlider
 import com.metrolist.music.ui.component.WavySlider
 import com.metrolist.music.ui.component.rememberBottomSheetState
+import com.metrolist.music.ui.custom.theme.CustomColorBackground
+import com.metrolist.music.ui.custom.theme.CustomColorDivider
+import com.metrolist.music.ui.custom.theme.CustomColorPrimary
+import com.metrolist.music.ui.custom.theme.CustomColorSurface
+import com.metrolist.music.ui.custom.theme.CustomColorSurfaceHigh
+import com.metrolist.music.ui.custom.theme.CustomColorSurfaceHighest
+import com.metrolist.music.ui.custom.theme.CustomColorTextMetadata
+import com.metrolist.music.ui.custom.theme.CustomColorTextPrimary
+import com.metrolist.music.ui.custom.theme.CustomColorTextSecondary
 import com.metrolist.music.ui.menu.PlayerMenu
 import com.metrolist.music.ui.screens.settings.DarkMode
 import com.metrolist.music.ui.theme.PlayerColorExtractor
@@ -306,8 +315,8 @@ fun BottomSheetPlayer(
 
     val onBackgroundColor =
         when (playerBackground) {
-            PlayerBackgroundStyle.DEFAULT -> MaterialTheme.colorScheme.secondary
-            else -> MaterialTheme.colorScheme.onSurface
+            PlayerBackgroundStyle.DEFAULT -> CustomColorTextSecondary
+            else -> CustomColorTextPrimary
         }
     val useBlackBackground =
         remember(isSystemInDarkTheme, darkTheme, pureBlack) {
@@ -405,8 +414,8 @@ fun BottomSheetPlayer(
         playerConnection.service.addToQueueAutomix(automix[0], 0)
     }
 
-    val defaultGradientColors = listOf(MaterialTheme.colorScheme.surface, MaterialTheme.colorScheme.surfaceVariant)
-    val fallbackColor = MaterialTheme.colorScheme.surface.toArgb()
+    val defaultGradientColors = listOf(CustomColorSurface, CustomColorSurfaceHigh)
+    val fallbackColor = CustomColorSurface.toArgb()
 
     LaunchedEffect(mediaMetadata?.id, playerBackground) {
         if (playerBackground == PlayerBackgroundStyle.GRADIENT) {
@@ -458,7 +467,7 @@ fun BottomSheetPlayer(
     val TextBackgroundColor by animateColorAsState(
         targetValue =
             when (playerBackground) {
-                PlayerBackgroundStyle.DEFAULT -> MaterialTheme.colorScheme.onBackground
+                PlayerBackgroundStyle.DEFAULT -> CustomColorTextPrimary
                 PlayerBackgroundStyle.BLUR -> Color.White
                 PlayerBackgroundStyle.GRADIENT -> Color.White
             },
@@ -468,7 +477,7 @@ fun BottomSheetPlayer(
     val icBackgroundColor by animateColorAsState(
         targetValue =
             when (playerBackground) {
-                PlayerBackgroundStyle.DEFAULT -> MaterialTheme.colorScheme.surface
+                PlayerBackgroundStyle.DEFAULT -> CustomColorSurfaceHigh
                 PlayerBackgroundStyle.BLUR -> Color.Black
                 PlayerBackgroundStyle.GRADIENT -> Color.Black
             },
@@ -481,20 +490,20 @@ fun BottomSheetPlayer(
                 playerBackground == PlayerBackgroundStyle.GRADIENT -> {
                 when (playerButtonsStyle) {
                     PlayerButtonsStyle.DEFAULT -> {
-                        Pair(Color.White, Color.Black)
+                        Pair(CustomColorSurfaceHigh, CustomColorTextPrimary)
                     }
 
                     PlayerButtonsStyle.PRIMARY -> {
                         Pair(
-                            MaterialTheme.colorScheme.primary,
-                            MaterialTheme.colorScheme.onPrimary,
+                            CustomColorPrimary,
+                            CustomColorBackground,
                         )
                     }
 
                     PlayerButtonsStyle.TERTIARY -> {
                         Pair(
-                            MaterialTheme.colorScheme.tertiary,
-                            MaterialTheme.colorScheme.onTertiary,
+                            CustomColorSurfaceHighest,
+                            CustomColorTextPrimary,
                         )
                     }
                 }
@@ -503,24 +512,20 @@ fun BottomSheetPlayer(
             else -> {
                 when (playerButtonsStyle) {
                     PlayerButtonsStyle.DEFAULT -> {
-                        if (useDarkTheme) {
-                            Pair(Color.White, Color.Black)
-                        } else {
-                            Pair(Color.Black, Color.White)
-                        }
+                        Pair(CustomColorSurfaceHigh, CustomColorTextPrimary)
                     }
 
                     PlayerButtonsStyle.PRIMARY -> {
                         Pair(
-                            MaterialTheme.colorScheme.primary,
-                            MaterialTheme.colorScheme.onPrimary,
+                            CustomColorPrimary,
+                            CustomColorBackground,
                         )
                     }
 
                     PlayerButtonsStyle.TERTIARY -> {
                         Pair(
-                            MaterialTheme.colorScheme.tertiary,
-                            MaterialTheme.colorScheme.onTertiary,
+                            CustomColorSurfaceHighest,
+                            CustomColorTextPrimary,
                         )
                     }
                 }
@@ -535,22 +540,22 @@ fun BottomSheetPlayer(
                 when (playerButtonsStyle) {
                     PlayerButtonsStyle.DEFAULT -> {
                         Pair(
-                            Color.White.copy(alpha = 0.2f),
-                            Color.White,
+                            CustomColorSurfaceHighest,
+                            CustomColorTextPrimary,
                         )
                     }
 
                     PlayerButtonsStyle.PRIMARY -> {
                         Pair(
-                            MaterialTheme.colorScheme.primaryContainer,
-                            MaterialTheme.colorScheme.onPrimaryContainer,
+                            CustomColorPrimary,
+                            CustomColorBackground,
                         )
                     }
 
                     PlayerButtonsStyle.TERTIARY -> {
                         Pair(
-                            MaterialTheme.colorScheme.tertiaryContainer,
-                            MaterialTheme.colorScheme.onTertiaryContainer,
+                            CustomColorSurfaceHighest,
+                            CustomColorTextPrimary,
                         )
                     }
                 }
@@ -560,22 +565,22 @@ fun BottomSheetPlayer(
                 when (playerButtonsStyle) {
                     PlayerButtonsStyle.DEFAULT -> {
                         Pair(
-                            MaterialTheme.colorScheme.surfaceContainerHighest,
-                            MaterialTheme.colorScheme.onSurface,
+                            CustomColorSurfaceHigh,
+                            CustomColorTextPrimary,
                         )
                     }
 
                     PlayerButtonsStyle.PRIMARY -> {
                         Pair(
-                            MaterialTheme.colorScheme.primaryContainer,
-                            MaterialTheme.colorScheme.onPrimaryContainer,
+                            CustomColorPrimary,
+                            CustomColorBackground,
                         )
                     }
 
                     PlayerButtonsStyle.TERTIARY -> {
                         Pair(
-                            MaterialTheme.colorScheme.tertiaryContainer,
-                            MaterialTheme.colorScheme.onTertiaryContainer,
+                            CustomColorSurfaceHighest,
+                            CustomColorTextPrimary,
                         )
                     }
                 }
@@ -697,8 +702,8 @@ fun BottomSheetPlayer(
                                     ).show()
                                 },
                                 colors = IconButtonDefaults.filledIconButtonColors(
-                                    containerColor = MaterialTheme.colorScheme.primary,
-                                    contentColor = MaterialTheme.colorScheme.onPrimary,
+                                    containerColor = CustomColorPrimary,
+                                    contentColor = CustomColorBackground,
                                 ),
                             ) {
                                 Text(stringResource(R.string.set_as_default))
@@ -815,14 +820,14 @@ fun BottomSheetPlayer(
     val bottomSheetBackgroundColor =
         when (playerBackground) {
             PlayerBackgroundStyle.BLUR, PlayerBackgroundStyle.GRADIENT -> {
-                MaterialTheme.colorScheme.surfaceContainer
+                CustomColorSurface
             }
 
             else -> {
                 if (useBlackBackground) {
                     Color.Black
                 } else {
-                    MaterialTheme.colorScheme.surfaceContainer
+                    CustomColorSurface
                 }
             }
         }
@@ -961,7 +966,7 @@ fun BottomSheetPlayer(
                                         Modifier
                                             .size(56.dp)
                                             .clip(RoundedCornerShape(ThumbnailCornerRadius))
-                                            .background(MaterialTheme.colorScheme.surfaceVariant),
+                                            .background(CustomColorSurfaceHigh),
                                     contentAlignment = Alignment.Center,
                                 ) {
                                     Icon(
@@ -1820,7 +1825,7 @@ fun BottomSheetPlayer(
                                 val isFavorite = if (isEpisode) currentSong?.song?.inLibrary != null else currentSong?.song?.liked == true
                                 ResizableIconButton(
                                     icon = if (isFavorite) R.drawable.favorite else R.drawable.favorite_border,
-                                    color = if (isFavorite) MaterialTheme.colorScheme.error else TextBackgroundColor,
+                                    color = if (isFavorite) MaterialTheme.colorScheme.error else CustomColorTextPrimary,
                                     modifier =
                                         Modifier
                                             .size(32.dp)
@@ -1972,7 +1977,7 @@ fun BottomSheetPlayer(
                     if (useBlackBackground) {
                         Color.Black
                     } else {
-                        MaterialTheme.colorScheme.surfaceContainer
+                        CustomColorSurfaceHigh
                     },
                 onBackgroundColor = onBackgroundColor,
                 TextBackgroundColor = TextBackgroundColor,
@@ -2105,7 +2110,7 @@ fun InlineLyricsView(
                 Text(
                     text = stringResource(R.string.lyrics_not_found),
                     style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f),
+                    color = CustomColorTextSecondary,
                     textAlign = TextAlign.Center,
                 )
             }

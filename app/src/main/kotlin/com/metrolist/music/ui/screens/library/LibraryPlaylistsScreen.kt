@@ -6,9 +6,11 @@
 package com.metrolist.music.ui.screens.library
 
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsetsSides
@@ -83,6 +85,12 @@ import com.metrolist.music.ui.component.LocalMenuState
 import com.metrolist.music.ui.component.PlaylistGridItem
 import com.metrolist.music.ui.component.PlaylistListItem
 import com.metrolist.music.ui.component.SortHeader
+import com.metrolist.music.ui.custom.theme.CustomColorBackground
+import com.metrolist.music.ui.custom.theme.CustomColorPrimary
+import com.metrolist.music.ui.custom.theme.CustomColorSurface
+import com.metrolist.music.ui.custom.theme.CustomColorSurfaceHigh
+import com.metrolist.music.ui.custom.theme.CustomColorSurfaceHighest
+import com.metrolist.music.ui.custom.theme.CustomColorTextMetadata
 import com.metrolist.music.extensions.matchesNormalizedQuery
 import com.metrolist.music.extensions.normalizeForSearch
 import com.metrolist.music.utils.rememberEnumPreference
@@ -364,7 +372,13 @@ fun LibraryPlaylistsScreen(
                     visibleResults.count { !it.autoPlaylist },
                 ),
                 style = MaterialTheme.typography.titleSmall,
-                color = MaterialTheme.colorScheme.secondary,
+                color = CustomColorTextMetadata,
+                modifier = Modifier
+                    .background(
+                        color = CustomColorSurfaceHigh,
+                        shape = androidx.compose.foundation.shape.RoundedCornerShape(14.dp),
+                    )
+                    .padding(horizontal = 10.dp, vertical = 6.dp),
             )
 
             IconButton(
@@ -402,6 +416,10 @@ fun LibraryPlaylistsScreen(
         }
     }
 
+    val insetsPadding = LocalPlayerAwareWindowInsets.current.asPaddingValues()
+    val listContentPadding = PaddingValues(top = 8.dp, bottom = 24.dp)
+    val gridContentPadding = PaddingValues(horizontal = 8.dp, vertical = 12.dp)
+
     Box(
         modifier = Modifier.fillMaxSize(),
     ) {
@@ -409,7 +427,10 @@ fun LibraryPlaylistsScreen(
             LibraryViewType.LIST -> {
                 LazyColumn(
                     state = lazyListState,
-                    contentPadding = LocalPlayerAwareWindowInsets.current.asPaddingValues(),
+                    contentPadding = PaddingValues(
+                        top = insetsPadding.calculateTopPadding() + listContentPadding.calculateTopPadding(),
+                        bottom = insetsPadding.calculateBottomPadding() + listContentPadding.calculateBottomPadding(),
+                    ),
                 ) {
                     item(
                         key = "filter",
@@ -422,7 +443,17 @@ fun LibraryPlaylistsScreen(
                         key = "header",
                         contentType = CONTENT_TYPE_HEADER,
                     ) {
-                        headerContent()
+                        Box(
+                            modifier = Modifier
+                                .padding(horizontal = 16.dp, vertical = 8.dp)
+                                .background(
+                                    color = CustomColorSurfaceHighest,
+                                    shape = androidx.compose.foundation.shape.RoundedCornerShape(24.dp),
+                                )
+                                .padding(vertical = 6.dp),
+                        ) {
+                            headerContent()
+                        }
                     }
 
                     if (visibleResults.isEmpty()) {
@@ -445,17 +476,27 @@ fun LibraryPlaylistsScreen(
                         contentType = { CONTENT_TYPE_PLAYLIST },
                     ) { item ->
                         if (item.autoPlaylist) {
-                            PlaylistListItem(
-                                playlist = item.playlist,
-                                autoPlaylist = true,
-                                modifier =
-                                    Modifier
-                                        .fillMaxWidth()
-                                        .clickable {
-                                            item.route?.let(navController::navigate)
-                                        }
-                                        .animateItem(),
-                            )
+                            Box(
+                                modifier = Modifier
+                                    .padding(horizontal = 16.dp, vertical = 4.dp)
+                                    .background(
+                                        color = CustomColorSurface,
+                                        shape = androidx.compose.foundation.shape.RoundedCornerShape(20.dp),
+                                    )
+                                    .padding(horizontal = 4.dp, vertical = 2.dp)
+                                    .animateItem(),
+                            ) {
+                                PlaylistListItem(
+                                    playlist = item.playlist,
+                                    autoPlaylist = true,
+                                    modifier =
+                                        Modifier
+                                            .fillMaxWidth()
+                                            .clickable {
+                                                item.route?.let(navController::navigate)
+                                            },
+                                )
+                            }
                         } else {
                             LibraryPlaylistListItem(
                                 menuState = menuState,
@@ -475,7 +516,12 @@ fun LibraryPlaylistsScreen(
                     GridCells.Adaptive(
                         minSize = GridThumbnailHeight + if (gridItemSize == GridItemSize.BIG) 24.dp else (-24).dp,
                     ),
-                    contentPadding = LocalPlayerAwareWindowInsets.current.asPaddingValues(),
+                    contentPadding = PaddingValues(
+                        start = 8.dp,
+                        top = insetsPadding.calculateTopPadding() + gridContentPadding.calculateTopPadding(),
+                        end = 8.dp,
+                        bottom = insetsPadding.calculateBottomPadding() + gridContentPadding.calculateBottomPadding(),
+                    ),
                 ) {
                     item(
                         key = "filter",
@@ -490,7 +536,17 @@ fun LibraryPlaylistsScreen(
                         span = { GridItemSpan(maxLineSpan) },
                         contentType = CONTENT_TYPE_HEADER,
                     ) {
-                        headerContent()
+                        Box(
+                            modifier = Modifier
+                                .padding(horizontal = 8.dp, vertical = 8.dp)
+                                .background(
+                                    color = CustomColorSurfaceHighest,
+                                    shape = androidx.compose.foundation.shape.RoundedCornerShape(24.dp),
+                                )
+                                .padding(vertical = 6.dp),
+                        ) {
+                            headerContent()
+                        }
                     }
 
                     if (visibleResults.isEmpty()) {
@@ -513,20 +569,31 @@ fun LibraryPlaylistsScreen(
                         contentType = { CONTENT_TYPE_PLAYLIST },
                     ) { item ->
                         if (item.autoPlaylist) {
-                            PlaylistGridItem(
-                                playlist = item.playlist,
-                                fillMaxWidth = true,
-                                autoPlaylist = true,
-                                modifier =
-                                    Modifier
-                                        .fillMaxWidth()
-                                        .combinedClickable(
-                                            onClick = {
-                                                item.route?.let(navController::navigate)
-                                            },
-                                        )
-                                        .animateItem(),
-                            )
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(horizontal = 4.dp, vertical = 4.dp)
+                                    .background(
+                                        color = CustomColorSurface,
+                                        shape = androidx.compose.foundation.shape.RoundedCornerShape(24.dp),
+                                    )
+                                    .padding(6.dp)
+                                    .animateItem(),
+                            ) {
+                                PlaylistGridItem(
+                                    playlist = item.playlist,
+                                    fillMaxWidth = true,
+                                    autoPlaylist = true,
+                                    modifier =
+                                        Modifier
+                                            .fillMaxWidth()
+                                            .combinedClickable(
+                                                onClick = {
+                                                    item.route?.let(navController::navigate)
+                                                },
+                                            ),
+                                )
+                            }
                         } else {
                             LibraryPlaylistGridItem(
                                 menuState = menuState,
@@ -543,6 +610,8 @@ fun LibraryPlaylistsScreen(
         // Always visible + button (no scroll hiding)
         FloatingActionButton(
             onClick = { showCreatePlaylistDialog = true },
+            containerColor = CustomColorPrimary,
+            contentColor = CustomColorBackground,
             modifier = Modifier
                 .align(Alignment.BottomEnd)
                 .windowInsetsPadding(

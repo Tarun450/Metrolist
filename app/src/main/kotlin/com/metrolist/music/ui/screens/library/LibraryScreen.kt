@@ -5,6 +5,7 @@
 
 package com.metrolist.music.ui.screens.library
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -21,6 +22,8 @@ import com.metrolist.music.constants.LibraryFilter
 import com.metrolist.music.constants.LibraryViewType
 import com.metrolist.music.constants.PlaylistViewTypeKey
 import com.metrolist.music.ui.component.ChipsRow
+import com.metrolist.music.ui.custom.theme.CustomColorBackground
+import com.metrolist.music.ui.custom.theme.CustomTheme
 import com.metrolist.music.utils.rememberEnumPreference
 
 @Composable
@@ -49,36 +52,43 @@ fun LibraryScreen() {
         }
     }
 
-    Box(modifier = Modifier.fillMaxSize()) {
-        when (filterType) {
-            LibraryFilter.LIBRARY -> LibraryMixScreen(
-                navController = navController,
-                filterContent = filterContent,
-                viewType = libraryViewType,
-                onViewTypeChange = { libraryViewType = it },
-            )
-            LibraryFilter.PLAYLISTS -> LibraryPlaylistsScreen(
-                navController = navController,
-                filterContent = filterContent,
-                viewType = playlistViewType,
-                onViewTypeChange = { playlistViewType = it },
-            )
-            LibraryFilter.SONGS -> LibrarySongsScreen(
-                navController,
-                { filterType = LibraryFilter.LIBRARY },
-            )
-            LibraryFilter.ALBUMS -> LibraryAlbumsScreen(
-                navController,
-                { filterType = LibraryFilter.LIBRARY },
-            )
-            LibraryFilter.ARTISTS -> LibraryArtistsScreen(
-                navController,
-                { filterType = LibraryFilter.LIBRARY },
-            )
-            LibraryFilter.PODCASTS -> LibraryPodcastsScreen(
-                navController,
-                { filterType = LibraryFilter.LIBRARY },
-            )
+    CustomTheme {
+        Box(
+            modifier =
+                Modifier
+                    .fillMaxSize()
+                    .background(CustomColorBackground),
+        ) {
+            when (filterType) {
+                LibraryFilter.LIBRARY -> LibraryMixScreen(
+                    navController = navController,
+                    filterContent = filterContent,
+                    viewType = libraryViewType,
+                    onViewTypeChange = { libraryViewType = it },
+                )
+                LibraryFilter.PLAYLISTS -> LibraryPlaylistsScreen(
+                    navController = navController,
+                    filterContent = filterContent,
+                    viewType = playlistViewType,
+                    onViewTypeChange = { playlistViewType = it },
+                )
+                LibraryFilter.SONGS -> LibrarySongsScreen(
+                    navController,
+                    { filterType = LibraryFilter.LIBRARY },
+                )
+                LibraryFilter.ALBUMS -> LibraryAlbumsScreen(
+                    navController,
+                    { filterType = LibraryFilter.LIBRARY },
+                )
+                LibraryFilter.ARTISTS -> LibraryArtistsScreen(
+                    navController,
+                    { filterType = LibraryFilter.LIBRARY },
+                )
+                LibraryFilter.PODCASTS -> LibraryPodcastsScreen(
+                    navController,
+                    { filterType = LibraryFilter.LIBRARY },
+                )
+            }
         }
     }
 }

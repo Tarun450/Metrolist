@@ -6,7 +6,9 @@
 package com.metrolist.music.ui.screens.library
 
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.asPaddingValues
@@ -76,6 +78,11 @@ import com.metrolist.music.ui.component.LibraryAlbumGridItem
 import com.metrolist.music.ui.component.LibraryAlbumListItem
 import com.metrolist.music.ui.component.LocalMenuState
 import com.metrolist.music.ui.component.SortHeader
+import com.metrolist.music.ui.custom.theme.CustomColorBackground
+import com.metrolist.music.ui.custom.theme.CustomColorPrimary
+import com.metrolist.music.ui.custom.theme.CustomColorSurfaceHigh
+import com.metrolist.music.ui.custom.theme.CustomColorSurfaceHighest
+import com.metrolist.music.ui.custom.theme.CustomColorTextMetadata
 import com.metrolist.music.utils.rememberEnumPreference
 import com.metrolist.music.utils.rememberPreference
 import com.metrolist.music.viewmodels.LibraryAlbumsViewModel
@@ -114,11 +121,21 @@ fun LibraryAlbumsScreen(
         Row {
             Spacer(Modifier.width(12.dp))
             FilterChip(
-                label = { Text(stringResource(R.string.albums)) },
+                label = {
+                    Text(
+                        text = stringResource(R.string.albums),
+                        color = CustomColorBackground,
+                    )
+                },
                 selected = true,
-                colors = FilterChipDefaults.filterChipColors(containerColor = MaterialTheme.colorScheme.surface),
+                colors = FilterChipDefaults.filterChipColors(
+                    selectedContainerColor = CustomColorPrimary,
+                    selectedLabelColor = CustomColorBackground,
+                    selectedLeadingIconColor = CustomColorBackground,
+                ),
                 onClick = onDeselect,
-                shape = RoundedCornerShape(16.dp),
+                shape = RoundedCornerShape(20.dp),
+                border = null,
                 leadingIcon = {
                     Icon(painter = painterResource(R.drawable.close), contentDescription = "")
                 },
@@ -211,7 +228,13 @@ fun LibraryAlbumsScreen(
             Text(
                 text = pluralStringResource(R.plurals.n_album, filteredAlbums.size, filteredAlbums.size),
                 style = MaterialTheme.typography.titleSmall,
-                color = MaterialTheme.colorScheme.secondary,
+                color = CustomColorTextMetadata,
+                modifier = Modifier
+                    .background(
+                        color = CustomColorSurfaceHigh,
+                        shape = RoundedCornerShape(14.dp),
+                    )
+                    .padding(horizontal = 10.dp, vertical = 6.dp),
             )
 
             IconButton(
@@ -249,6 +272,10 @@ fun LibraryAlbumsScreen(
         }
     }
 
+    val insetsPadding = LocalPlayerAwareWindowInsets.current.asPaddingValues()
+    val listContentPadding = PaddingValues(top = 8.dp, bottom = 24.dp)
+    val gridContentPadding = PaddingValues(horizontal = 8.dp, vertical = 12.dp)
+
     Box(
         modifier = Modifier.fillMaxSize(),
     ) {
@@ -256,7 +283,10 @@ fun LibraryAlbumsScreen(
             LibraryViewType.LIST -> {
                 LazyColumn(
                     state = lazyListState,
-                    contentPadding = LocalPlayerAwareWindowInsets.current.asPaddingValues(),
+                    contentPadding = PaddingValues(
+                        top = insetsPadding.calculateTopPadding() + listContentPadding.calculateTopPadding(),
+                        bottom = insetsPadding.calculateBottomPadding() + listContentPadding.calculateBottomPadding(),
+                    ),
                 ) {
                     item(
                         key = "filter",
@@ -269,7 +299,17 @@ fun LibraryAlbumsScreen(
                         key = "header",
                         contentType = CONTENT_TYPE_HEADER,
                     ) {
-                        headerContent()
+                        Box(
+                            modifier = Modifier
+                                .padding(horizontal = 16.dp, vertical = 8.dp)
+                                .background(
+                                    color = CustomColorSurfaceHighest,
+                                    shape = RoundedCornerShape(24.dp),
+                                )
+                                .padding(vertical = 6.dp),
+                        ) {
+                            headerContent()
+                        }
                     }
 
                     filteredAlbums.let { albums ->
@@ -312,7 +352,12 @@ fun LibraryAlbumsScreen(
                         GridCells.Adaptive(
                             minSize = GridThumbnailHeight + if (gridItemSize == GridItemSize.BIG) 24.dp else (-24).dp,
                         ),
-                    contentPadding = LocalPlayerAwareWindowInsets.current.asPaddingValues(),
+                    contentPadding = PaddingValues(
+                        start = 8.dp,
+                        top = insetsPadding.calculateTopPadding() + gridContentPadding.calculateTopPadding(),
+                        end = 8.dp,
+                        bottom = insetsPadding.calculateBottomPadding() + gridContentPadding.calculateBottomPadding(),
+                    ),
                 ) {
                     item(
                         key = "filter",
@@ -327,7 +372,17 @@ fun LibraryAlbumsScreen(
                         span = { GridItemSpan(maxLineSpan) },
                         contentType = CONTENT_TYPE_HEADER,
                     ) {
-                        headerContent()
+                        Box(
+                            modifier = Modifier
+                                .padding(horizontal = 8.dp, vertical = 8.dp)
+                                .background(
+                                    color = CustomColorSurfaceHighest,
+                                    shape = RoundedCornerShape(24.dp),
+                                )
+                                .padding(vertical = 6.dp),
+                        ) {
+                            headerContent()
+                        }
                     }
 
                     filteredAlbums.let { albums ->

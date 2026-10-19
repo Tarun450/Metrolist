@@ -10,6 +10,7 @@ import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -32,7 +33,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FilterChipDefaults
-import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LinearProgressIndicator
@@ -86,8 +86,12 @@ import com.metrolist.music.ui.component.LibrarySearchHeader
 import com.metrolist.music.ui.component.LocalMenuState
 import com.metrolist.music.ui.component.SongListItem
 import com.metrolist.music.ui.component.SortHeader
+import com.metrolist.music.ui.custom.theme.CustomColorBackground
+import com.metrolist.music.ui.custom.theme.CustomColorPrimary
+import com.metrolist.music.ui.custom.theme.CustomColorSurfaceHigh
+import com.metrolist.music.ui.custom.theme.CustomColorTextMetadata
+import com.metrolist.music.ui.custom.theme.CustomColorTextSecondary
 import com.metrolist.music.ui.menu.SongMenu
-import com.metrolist.music.ui.utils.isScrollingUp
 import com.metrolist.music.utils.rememberEnumPreference
 import com.metrolist.music.utils.rememberPreference
 import com.metrolist.music.viewmodels.LibrarySongsViewModel
@@ -335,11 +339,21 @@ fun LibrarySongsScreen(
                 Row {
                     Spacer(Modifier.width(12.dp))
                     FilterChip(
-                        label = { Text(stringResource(R.string.songs)) },
+                        label = {
+                            Text(
+                                text = stringResource(R.string.songs),
+                                color = CustomColorBackground,
+                            )
+                        },
                         selected = true,
-                        colors = FilterChipDefaults.filterChipColors(containerColor = MaterialTheme.colorScheme.surface),
+                        colors = FilterChipDefaults.filterChipColors(
+                            selectedContainerColor = CustomColorPrimary,
+                            selectedLabelColor = CustomColorBackground,
+                            selectedLeadingIconColor = CustomColorBackground,
+                        ),
                         onClick = onDeselect,
-                        shape = RoundedCornerShape(16.dp),
+                        shape = RoundedCornerShape(20.dp),
+                        border = null,
                         leadingIcon = {
                             Icon(
                                 painter = painterResource(R.drawable.close),
@@ -404,7 +418,13 @@ fun LibrarySongsScreen(
                                 filteredSongs.size,
                             ),
                         style = MaterialTheme.typography.titleSmall,
-                        color = MaterialTheme.colorScheme.secondary,
+                        color = CustomColorTextMetadata,
+                        modifier = Modifier
+                            .background(
+                                color = CustomColorSurfaceHigh,
+                                shape = RoundedCornerShape(14.dp),
+                            )
+                            .padding(horizontal = 10.dp, vertical = 6.dp),
                     )
 
                     IconButton(

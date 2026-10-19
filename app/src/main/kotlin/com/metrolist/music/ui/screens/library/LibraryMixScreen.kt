@@ -6,9 +6,11 @@
 package com.metrolist.music.ui.screens.library
 
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsetsSides
@@ -98,6 +100,12 @@ import com.metrolist.music.ui.component.PlaylistListItem
 import com.metrolist.music.ui.component.SongGridItem
 import com.metrolist.music.ui.component.SongListItem
 import com.metrolist.music.ui.component.SortHeader
+import com.metrolist.music.ui.custom.theme.CustomColorBackground
+import com.metrolist.music.ui.custom.theme.CustomColorPrimary
+import com.metrolist.music.ui.custom.theme.CustomColorSurface
+import com.metrolist.music.ui.custom.theme.CustomColorSurfaceHigh
+import com.metrolist.music.ui.custom.theme.CustomColorSurfaceHighest
+import com.metrolist.music.ui.custom.theme.CustomColorTextMetadata
 import com.metrolist.music.ui.menu.AlbumMenu
 import com.metrolist.music.ui.menu.ArtistMenu
 import com.metrolist.music.ui.menu.PlaylistMenu
@@ -439,6 +447,10 @@ fun LibraryMixScreen(
     val isRefreshing by viewModel.isRefreshing.collectAsStateWithLifecycle()
     val pullRefreshState = rememberPullToRefreshState()
 
+    val insetsPadding = LocalPlayerAwareWindowInsets.current.asPaddingValues()
+    val listContentPadding = PaddingValues(top = 8.dp, bottom = 24.dp)
+    val gridContentPadding = PaddingValues(horizontal = 8.dp, vertical = 12.dp)
+
     Box(
         modifier =
             Modifier
@@ -453,7 +465,10 @@ fun LibraryMixScreen(
             LibraryViewType.LIST -> {
                 LazyColumn(
                     state = lazyListState,
-                    contentPadding = LocalPlayerAwareWindowInsets.current.asPaddingValues(),
+                    contentPadding = PaddingValues(
+                        top = insetsPadding.calculateTopPadding() + listContentPadding.calculateTopPadding(),
+                        bottom = insetsPadding.calculateBottomPadding() + listContentPadding.calculateBottomPadding(),
+                    ),
                 ) {
                     item(
                         key = "filter",
@@ -466,7 +481,17 @@ fun LibraryMixScreen(
                         key = "header",
                         contentType = CONTENT_TYPE_HEADER,
                     ) {
-                        headerContent()
+                        Box(
+                            modifier = Modifier
+                                .padding(horizontal = 16.dp, vertical = 8.dp)
+                                .background(
+                                    color = CustomColorSurfaceHighest,
+                                    shape = androidx.compose.foundation.shape.RoundedCornerShape(24.dp),
+                                )
+                                .padding(vertical = 6.dp),
+                        ) {
+                            headerContent()
+                        }
                     }
 
                     if (showLikedPlaylist) {
@@ -779,7 +804,12 @@ fun LibraryMixScreen(
                         GridCells.Adaptive(
                             minSize = GridThumbnailHeight + if (gridItemSize == GridItemSize.BIG) 24.dp else (-24).dp,
                         ),
-                    contentPadding = LocalPlayerAwareWindowInsets.current.asPaddingValues(),
+                    contentPadding = PaddingValues(
+                        start = 8.dp,
+                        top = insetsPadding.calculateTopPadding() + gridContentPadding.calculateTopPadding(),
+                        end = 8.dp,
+                        bottom = insetsPadding.calculateBottomPadding() + gridContentPadding.calculateBottomPadding(),
+                    ),
                 ) {
                     item(
                         key = "filter",
@@ -794,7 +824,17 @@ fun LibraryMixScreen(
                         span = { GridItemSpan(maxLineSpan) },
                         contentType = CONTENT_TYPE_HEADER,
                     ) {
-                        headerContent()
+                        Box(
+                            modifier = Modifier
+                                .padding(horizontal = 8.dp, vertical = 8.dp)
+                                .background(
+                                    color = CustomColorSurfaceHighest,
+                                    shape = androidx.compose.foundation.shape.RoundedCornerShape(24.dp),
+                                )
+                                .padding(vertical = 6.dp),
+                        ) {
+                            headerContent()
+                        }
                     }
 
                     if (showLikedPlaylist) {
@@ -1055,6 +1095,8 @@ fun LibraryMixScreen(
         // Always visible + button (no scroll hiding)
         FloatingActionButton(
             onClick = { showCreatePlaylistDialog = true },
+            containerColor = CustomColorPrimary,
+            contentColor = CustomColorBackground,
             modifier = Modifier
                 .align(Alignment.BottomEnd)
                 .windowInsetsPadding(
