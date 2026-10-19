@@ -114,6 +114,13 @@ import com.metrolist.music.lyrics.LyricsUtils.findActiveLineIndices
 import com.metrolist.music.lyrics.lyricsTextLooksSynced
 import com.metrolist.music.ui.component.shimmer.ShimmerHost
 import com.metrolist.music.ui.component.shimmer.TextPlaceholder
+import com.metrolist.music.ui.custom.theme.CustomColorDivider
+import com.metrolist.music.ui.custom.theme.CustomColorPrimary
+import com.metrolist.music.ui.custom.theme.CustomColorSurface
+import com.metrolist.music.ui.custom.theme.CustomColorSurfaceHigh
+import com.metrolist.music.ui.custom.theme.CustomColorTextMetadata
+import com.metrolist.music.ui.custom.theme.CustomColorTextPrimary
+import com.metrolist.music.ui.custom.theme.CustomColorTextSecondary
 import com.metrolist.music.ui.screens.settings.LyricsPosition
 import com.metrolist.music.ui.screens.settings.defaultList
 import com.metrolist.music.ui.utils.fadingEdge
@@ -296,7 +303,7 @@ fun ExperimentalLyrics(
     }
 
     val expressiveAccent = when (playerBackground) {
-        PlayerBackgroundStyle.DEFAULT -> MaterialTheme.colorScheme.primary
+        PlayerBackgroundStyle.DEFAULT -> CustomColorPrimary
         PlayerBackgroundStyle.BLUR, PlayerBackgroundStyle.GRADIENT -> Color.White
     }
 
@@ -644,7 +651,7 @@ fun ExperimentalLyrics(
 
         if (lyrics == LYRICS_NOT_FOUND) {
             Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                Text(text = stringResource(R.string.lyrics_not_found), fontSize = 20.sp, color = MaterialTheme.colorScheme.secondary, modifier = Modifier.alpha(0.5f))
+                Text(text = stringResource(R.string.lyrics_not_found), fontSize = 20.sp, color = CustomColorTextSecondary, modifier = Modifier.alpha(0.7f))
             }
         } else if (lyrics == null && (translationStatus is LyricsTranslationHelper.TranslationStatus.Idle || translationStatus is LyricsTranslationHelper.TranslationStatus.Error)) {
              Column(modifier = Modifier.padding(top = 100.dp)) {
@@ -714,7 +721,7 @@ fun ExperimentalLyrics(
                     )
                     Text(
                         text = stringResource(R.string.lyrics_from_provider, lyricsEntity.provider),
-                        fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
+                        fontSize = 12.sp, color = CustomColorTextMetadata,
                         modifier = Modifier.fillMaxWidth().offset { IntOffset(0, (animatedProviderBase + userManualOffset).roundToInt()) }.padding(horizontal = 24.dp, vertical = 4.dp)
                     )
                 }
@@ -828,8 +835,17 @@ fun ExperimentalLyrics(
 
     if (showProgressDialog) {
         BasicAlertDialog(onDismissRequest = {}) {
-            Card(shape = MaterialTheme.shapes.medium, colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)) {
-                Box(Modifier.padding(32.dp)) { Text(stringResource(R.string.generating_image) + "\n" + stringResource(R.string.please_wait)) }
+            Card(
+                shape = MaterialTheme.shapes.medium,
+                colors = CardDefaults.cardColors(containerColor = CustomColorSurface),
+                border = androidx.compose.foundation.BorderStroke(1.dp, CustomColorDivider.copy(alpha = 0.65f)),
+            ) {
+                Box(Modifier.padding(32.dp)) {
+                    Text(
+                        stringResource(R.string.generating_image) + "\n" + stringResource(R.string.please_wait),
+                        color = CustomColorTextPrimary,
+                    )
+                }
             }
         }
     }

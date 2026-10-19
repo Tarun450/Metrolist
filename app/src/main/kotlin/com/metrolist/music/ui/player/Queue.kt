@@ -35,6 +35,7 @@ import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -47,10 +48,11 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Checkbox
+import androidx.compose.material3.CheckboxDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.LocalContentColor
+import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Slider
@@ -118,6 +120,20 @@ import com.metrolist.music.ui.component.BottomSheetState
 import com.metrolist.music.ui.component.LocalBottomSheetPageState
 import com.metrolist.music.ui.component.LocalMenuState
 import com.metrolist.music.ui.component.MediaMetadataListItem
+import com.metrolist.music.ui.custom.theme.CustomColorBackground
+import com.metrolist.music.ui.custom.theme.CustomColorDivider
+import com.metrolist.music.ui.custom.theme.CustomColorError
+import com.metrolist.music.ui.custom.theme.CustomColorPrimary
+import com.metrolist.music.ui.custom.theme.CustomColorSurface
+import com.metrolist.music.ui.custom.theme.CustomColorSurfaceHigh
+import com.metrolist.music.ui.custom.theme.CustomColorSurfaceLowest
+import com.metrolist.music.ui.custom.theme.CustomColorTextMetadata
+import com.metrolist.music.ui.custom.theme.CustomColorTextPrimary
+import com.metrolist.music.ui.custom.theme.CustomColorTextSecondary
+import com.metrolist.music.ui.custom.theme.CustomShapeLarge
+import com.metrolist.music.ui.custom.theme.CustomShapePill
+import com.metrolist.music.ui.custom.theme.CustomShapeSheet
+import com.metrolist.music.ui.custom.theme.LocalCustomSpacing
 import com.metrolist.music.ui.menu.PlayerMenu
 import com.metrolist.music.ui.menu.QueueMenu
 import com.metrolist.music.ui.menu.SelectionMediaMetadataMenu
@@ -162,6 +178,7 @@ fun Queue(
     val navController = LocalNavController.current
     val context = LocalContext.current
     val haptic = LocalHapticFeedback.current
+    val spacing = LocalCustomSpacing.current
     val clipboardManager = LocalClipboard.current
     val menuState = LocalMenuState.current
     val sleepTimerDefaultSetTemplate = stringResource(R.string.sleep_timer_default_set)
@@ -173,6 +190,9 @@ fun Queue(
     val isListenTogetherGuest = listenTogetherRoleState?.value == RoomRole.GUEST
 
     val playerConnection = LocalPlayerConnection.current ?: return
+    val queueSheetBackground = if (pureBlack) Color.Black else CustomColorBackground
+    val queueSurface = if (pureBlack) Color.Black else CustomColorSurface
+    val queueSurfaceHigh = if (pureBlack) Color.Black else CustomColorSurfaceHigh
     val isPlaying by playerConnection.isEffectivelyPlaying.collectAsStateWithLifecycle()
     val repeatMode by playerConnection.repeatMode.collectAsStateWithLifecycle()
 
@@ -746,7 +766,7 @@ fun Queue(
             modifier =
                 Modifier
                     .fillMaxSize()
-                    .background(background),
+                    .background(queueSheetBackground),
         ) {
             LazyColumn(
                 state = lazyListState,
@@ -754,11 +774,15 @@ fun Queue(
                     WindowInsets.systemBars
                         .add(
                             WindowInsets(
-                                top = ListItemHeight + 8.dp,
-                                bottom = ListItemHeight + 8.dp,
+                                top = ListItemHeight + spacing.xs,
+                                bottom = ListItemHeight + spacing.xs,
                             ),
                         ).asPaddingValues(),
-                modifier = Modifier.nestedScroll(state.preUpPostDownNestedScrollConnection),
+                verticalArrangement = Arrangement.spacedBy(spacing.xxs),
+                modifier =
+                    Modifier
+                        .nestedScroll(state.preUpPostDownNestedScrollConnection)
+                        .padding(horizontal = spacing.xs),
             ) {
                 item(key = "queue_top_spacer") {
                     Spacer(
@@ -829,104 +853,146 @@ fun Queue(
                         }
 
                         val content: @Composable () -> Unit = {
+                            val rowShape = CustomShapeLarge
+                            val rowBackground = if (isActive) queueSurfaceHigh else queueSurface
+                            val rowBorderColor = if (isActive) CustomColorPrimary.copy(alpha = 0.35f) else CustomColorDivider.copy(alpha = 0.55f)
                             Row(
                                 horizontalArrangement = Arrangement.Center,
                                 modifier = Modifier.animateItem(),
                             ) {
-                                MediaMetadataListItem(
-                                    mediaMetadata = window.mediaItem.metadata!!,
-                                    isSelected = false,
-                                    isActive = isActive,
-                                    isPlaying = isPlaying && isActive,
-                                    trailingContent = {
-                                        if (inSelectMode) {
-                                            Checkbox(
-                                                checked = window.mediaItem.mediaId in selection,
-                                                onCheckedChange = onCheckedChange,
-                                            )
-                                        } else {
-                                            if (!isListenTogetherGuest) {
-                                                IconButton(
-                                                    onClick = {
-                                                        menuState.show {
-                                                            QueueMenu(
-                                                                mediaMetadata = window.mediaItem.metadata!!,
-                                                                playerBottomSheetState = playerBottomSheetState,
-                                                                onShowDetailsDialog = {
-                                                                    window.mediaItem.mediaId.let {
-                                                                        bottomSheetPageState.show {
-                                                                            ShowMediaInfo(it)
-                                                                        }
-                                                                    }
-                                                                },
-                                                                onDismiss = menuState::dismiss,
-                                                            )
-                                                        }
-                                                    },
-                                                ) {
-                                                    Icon(
-                                                        painter = painterResource(R.drawable.more_vert),
-                                                        contentDescription = null,
-                                                    )
-                                                }
-                                            }
-                                            if (!locked && !isListenTogetherGuest) {
-                                                IconButton(
-                                                    onClick = { },
-                                                    modifier = Modifier.draggableHandle(),
-                                                ) {
-                                                    Icon(
-                                                        painter = painterResource(R.drawable.drag_handle),
-                                                        contentDescription = null,
-                                                    )
-                                                }
-                                            }
-                                        }
-                                    },
+                                Box(
                                     modifier =
                                         Modifier
                                             .fillMaxWidth()
-                                            .background(background)
-                                            .combinedClickable(
-                                                onClick = {
-                                                    if (inSelectMode) {
-                                                        onCheckedChange(window.mediaItem.mediaId !in selection)
-                                                    } else if (!isListenTogetherGuest) {
-                                                        if (index == currentWindowIndex) {
-                                                            if (isCasting) {
-                                                                if (castIsPlaying) {
-                                                                    castHandler?.pause()
-                                                                } else {
-                                                                    castHandler?.play()
-                                                                }
-                                                            } else {
-                                                                playerConnection.togglePlayPause()
-                                                            }
-                                                        } else {
-                                                            if (isCasting) {
-                                                                val mediaId = window.mediaItem.mediaId
-                                                                val navigated = castHandler?.navigateToMediaIfInQueue(mediaId) ?: false
-                                                                if (!navigated) {
-                                                                    playerConnection.player.seekToDefaultPosition(window.firstPeriodIndex)
-                                                                }
-                                                            } else {
-                                                                playerConnection.player.seekToDefaultPosition(
-                                                                    window.firstPeriodIndex,
+                                            .clip(rowShape)
+                                            .background(rowBackground)
+                                            .border(width = 1.dp, color = rowBorderColor, shape = rowShape),
+                                ) {
+                                    if (isActive) {
+                                        Box(
+                                            modifier =
+                                                Modifier
+                                                    .align(Alignment.CenterStart)
+                                                    .offset(x = 6.dp)
+                                                    .width(4.dp)
+                                                    .height(36.dp)
+                                                    .clip(CustomShapePill)
+                                                    .background(CustomColorPrimary),
+                                        )
+                                    }
+
+                                    MediaMetadataListItem(
+                                        mediaMetadata = window.mediaItem.metadata!!,
+                                        isSelected = false,
+                                        isActive = isActive,
+                                        isPlaying = isPlaying && isActive,
+                                        trailingContent = {
+                                            if (inSelectMode) {
+                                                Checkbox(
+                                                    checked = window.mediaItem.mediaId in selection,
+                                                    onCheckedChange = onCheckedChange,
+                                                    colors = CheckboxDefaults.colors(
+                                                        checkedColor = CustomColorPrimary,
+                                                        uncheckedColor = CustomColorTextSecondary,
+                                                        checkmarkColor = CustomColorBackground,
+                                                    ),
+                                                )
+                                            } else {
+                                                if (!isListenTogetherGuest) {
+                                                    IconButton(
+                                                        onClick = {
+                                                            menuState.show {
+                                                                QueueMenu(
+                                                                    mediaMetadata = window.mediaItem.metadata!!,
+                                                                    playerBottomSheetState = playerBottomSheetState,
+                                                                    onShowDetailsDialog = {
+                                                                        window.mediaItem.mediaId.let {
+                                                                            bottomSheetPageState.show {
+                                                                                ShowMediaInfo(it)
+                                                                            }
+                                                                        }
+                                                                    },
+                                                                    onDismiss = menuState::dismiss,
                                                                 )
-                                                                playerConnection.player.playWhenReady = true
+                                                            }
+                                                        },
+                                                        colors = IconButtonDefaults.iconButtonColors(
+                                                            containerColor = Color.Transparent,
+                                                            contentColor = CustomColorTextSecondary,
+                                                            disabledContentColor = CustomColorTextMetadata,
+                                                        ),
+                                                    ) {
+                                                        Icon(
+                                                            painter = painterResource(R.drawable.more_vert),
+                                                            contentDescription = null,
+                                                            tint = CustomColorTextSecondary,
+                                                        )
+                                                    }
+                                                }
+                                                if (!locked && !isListenTogetherGuest) {
+                                                    IconButton(
+                                                        onClick = { },
+                                                        modifier = Modifier.draggableHandle(),
+                                                        colors = IconButtonDefaults.iconButtonColors(
+                                                            containerColor = Color.Transparent,
+                                                            contentColor = CustomColorTextSecondary,
+                                                            disabledContentColor = CustomColorTextMetadata,
+                                                        ),
+                                                    ) {
+                                                        Icon(
+                                                            painter = painterResource(R.drawable.drag_handle),
+                                                            contentDescription = null,
+                                                            tint = CustomColorTextSecondary,
+                                                        )
+                                                    }
+                                                }
+                                            }
+                                        },
+                                        modifier =
+                                            Modifier
+                                                .fillMaxWidth()
+                                                .background(Color.Transparent)
+                                                .combinedClickable(
+                                                    onClick = {
+                                                        if (inSelectMode) {
+                                                            onCheckedChange(window.mediaItem.mediaId !in selection)
+                                                        } else if (!isListenTogetherGuest) {
+                                                            if (index == currentWindowIndex) {
+                                                                if (isCasting) {
+                                                                    if (castIsPlaying) {
+                                                                        castHandler?.pause()
+                                                                    } else {
+                                                                        castHandler?.play()
+                                                                    }
+                                                                } else {
+                                                                    playerConnection.togglePlayPause()
+                                                                }
+                                                            } else {
+                                                                if (isCasting) {
+                                                                    val mediaId = window.mediaItem.mediaId
+                                                                    val navigated = castHandler?.navigateToMediaIfInQueue(mediaId) ?: false
+                                                                    if (!navigated) {
+                                                                        playerConnection.player.seekToDefaultPosition(window.firstPeriodIndex)
+                                                                    }
+                                                                } else {
+                                                                    playerConnection.player.seekToDefaultPosition(
+                                                                        window.firstPeriodIndex,
+                                                                    )
+                                                                    playerConnection.player.playWhenReady = true
+                                                                }
                                                             }
                                                         }
-                                                    }
-                                                },
-                                                onLongClick = {
-                                                    if (!inSelectMode) {
-                                                        haptic.performHapticFeedback(HapticFeedbackType.LongPress)
-                                                        inSelectMode = true
-                                                        onCheckedChange(true)
-                                                    }
-                                                },
-                                            ),
-                                )
+                                                    },
+                                                    onLongClick = {
+                                                        if (!inSelectMode) {
+                                                            haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                                                            inSelectMode = true
+                                                            onCheckedChange(true)
+                                                        }
+                                                    },
+                                                ),
+                                    )
+                                }
                             }
                         }
 
@@ -935,7 +1001,28 @@ fun Queue(
                         } else {
                             SwipeToDismissBox(
                                 state = dismissBoxState,
-                                backgroundContent = {},
+                                backgroundContent = {
+                                    Box(
+                                        modifier =
+                                            Modifier
+                                                .fillMaxSize()
+                                                .clip(CustomShapeLarge)
+                                                .background(CustomColorError.copy(alpha = 0.18f))
+                                                .border(
+                                                    width = 1.dp,
+                                                    color = CustomColorError.copy(alpha = 0.4f),
+                                                    shape = CustomShapeLarge,
+                                                )
+                                                .padding(horizontal = spacing.md),
+                                        contentAlignment = Alignment.CenterEnd,
+                                    ) {
+                                        Icon(
+                                            painter = painterResource(R.drawable.delete),
+                                            contentDescription = null,
+                                            tint = CustomColorError,
+                                        )
+                                    }
+                                },
                             ) {
                                 content()
                             }
@@ -945,17 +1032,27 @@ fun Queue(
 
                 if (automix.isNotEmpty()) {
                     item(key = "automix_divider") {
-                        HorizontalDivider(
+                        Column(
                             modifier =
                                 Modifier
-                                    .padding(vertical = 8.dp, horizontal = 4.dp)
+                                    .clip(CustomShapeLarge)
+                                    .background(queueSurface)
+                                    .border(
+                                        width = 1.dp,
+                                        color = CustomColorDivider.copy(alpha = 0.5f),
+                                        shape = CustomShapeLarge,
+                                    )
+                                    .padding(horizontal = spacing.md, vertical = spacing.sm)
                                     .animateItem(),
-                        )
-
-                        Text(
-                            text = stringResource(R.string.similar_content),
-                            modifier = Modifier.padding(start = 16.dp),
-                        )
+                        ) {
+                            HorizontalDivider(color = CustomColorDivider)
+                            Text(
+                                text = stringResource(R.string.similar_content),
+                                color = CustomColorTextMetadata,
+                                style = MaterialTheme.typography.labelLarge,
+                                modifier = Modifier.padding(top = spacing.xs),
+                            )
+                        }
                     }
 
                     itemsIndexed(
@@ -965,61 +1062,87 @@ fun Queue(
                         Row(
                             horizontalArrangement = Arrangement.Center,
                         ) {
-                            MediaMetadataListItem(
-                                mediaMetadata = item.metadata!!,
-                                trailingContent = {
-                                    if (!isListenTogetherGuest) {
-                                        IconButton(
-                                            onClick = {
-                                                playerConnection.service.playNextAutomix(
-                                                    item,
-                                                    index,
-                                                )
-                                            },
-                                        ) {
-                                            Icon(
-                                                painter = painterResource(R.drawable.playlist_play),
-                                                contentDescription = null,
-                                            )
-                                        }
-                                        IconButton(
-                                            onClick = {
-                                                playerConnection.service.addToQueueAutomix(
-                                                    item,
-                                                    index,
-                                                )
-                                            },
-                                        ) {
-                                            Icon(
-                                                painter = painterResource(R.drawable.queue_music),
-                                                contentDescription = null,
-                                            )
-                                        }
-                                    }
-                                },
+                            Box(
                                 modifier =
                                     Modifier
                                         .fillMaxWidth()
-                                        .combinedClickable(
-                                            onClick = {},
-                                            onLongClick = {
-                                                menuState.show {
-                                                    QueueMenu(
-                                                        mediaMetadata = item.metadata!!,
-                                                        playerBottomSheetState = playerBottomSheetState,
-                                                        onShowDetailsDialog = {
-                                                            item.mediaId.let {
-                                                                bottomSheetPageState.show {
-                                                                    ShowMediaInfo(it)
-                                                                }
-                                                            }
-                                                        },
-                                                        onDismiss = menuState::dismiss,
+                                        .clip(CustomShapeLarge)
+                                        .background(queueSurface)
+                                        .border(
+                                            width = 1.dp,
+                                            color = CustomColorDivider.copy(alpha = 0.5f),
+                                            shape = CustomShapeLarge,
+                                        ),
+                            ) {
+                                MediaMetadataListItem(
+                                    mediaMetadata = item.metadata!!,
+                                    trailingContent = {
+                                        if (!isListenTogetherGuest) {
+                                            IconButton(
+                                                onClick = {
+                                                    playerConnection.service.playNextAutomix(
+                                                        item,
+                                                        index,
                                                     )
-                                                }
-                                            },
-                                        ).animateItem(),
-                            )
+                                                },
+                                                colors = IconButtonDefaults.iconButtonColors(
+                                                    containerColor = Color.Transparent,
+                                                    contentColor = CustomColorPrimary,
+                                                    disabledContentColor = CustomColorTextMetadata,
+                                                ),
+                                            ) {
+                                                Icon(
+                                                    painter = painterResource(R.drawable.playlist_play),
+                                                    contentDescription = null,
+                                                    tint = CustomColorPrimary,
+                                                )
+                                            }
+                                            IconButton(
+                                                onClick = {
+                                                    playerConnection.service.addToQueueAutomix(
+                                                        item,
+                                                        index,
+                                                    )
+                                                },
+                                                colors = IconButtonDefaults.iconButtonColors(
+                                                    containerColor = Color.Transparent,
+                                                    contentColor = CustomColorTextSecondary,
+                                                    disabledContentColor = CustomColorTextMetadata,
+                                                ),
+                                            ) {
+                                                Icon(
+                                                    painter = painterResource(R.drawable.queue_music),
+                                                    contentDescription = null,
+                                                    tint = CustomColorTextSecondary,
+                                                )
+                                            }
+                                        }
+                                    },
+                                    modifier =
+                                        Modifier
+                                            .fillMaxWidth()
+                                            .background(Color.Transparent)
+                                            .combinedClickable(
+                                                onClick = {},
+                                                onLongClick = {
+                                                    menuState.show {
+                                                        QueueMenu(
+                                                            mediaMetadata = item.metadata!!,
+                                                            playerBottomSheetState = playerBottomSheetState,
+                                                            onShowDetailsDialog = {
+                                                                item.mediaId.let {
+                                                                    bottomSheetPageState.show {
+                                                                        ShowMediaInfo(it)
+                                                                    }
+                                                                }
+                                                            },
+                                                            onDismiss = menuState::dismiss,
+                                                        )
+                                                    }
+                                                },
+                                            ).animateItem(),
+                                )
+                            }
                         }
                     }
                 }
@@ -1033,30 +1156,29 @@ fun Queue(
                         indication = null,
                         interactionSource = remember { MutableInteractionSource() },
                     ) { }
-                    .background(
-                        if (pureBlack) {
-                            Color.Black
-                        } else {
-                            MaterialTheme.colorScheme
-                                .secondaryContainer
-                                .copy(alpha = 0.90f)
-                        },
-                    ).windowInsetsPadding(
+                    .background(queueSurfaceHigh)
+                    .border(
+                        width = 1.dp,
+                        color = CustomColorDivider.copy(alpha = 0.65f),
+                        shape = CustomShapeSheet,
+                    )
+                    .windowInsetsPadding(
                         WindowInsets.systemBars
                             .only(WindowInsetsSides.Top + WindowInsetsSides.Horizontal),
                     ),
         ) {
             Row(
-                horizontalArrangement = Arrangement.spacedBy(6.dp),
+                horizontalArrangement = Arrangement.spacedBy(spacing.xs),
                 verticalAlignment = Alignment.CenterVertically,
                 modifier =
                     Modifier
                         .height(ListItemHeight)
-                        .padding(horizontal = 12.dp),
+                        .padding(horizontal = spacing.sm),
             ) {
                 Text(
                     text = queueTitle.orEmpty(),
                     style = MaterialTheme.typography.titleMedium,
+                    color = CustomColorTextPrimary,
                     maxLines = 2,
                     overflow = TextOverflow.Ellipsis,
                     modifier = Modifier.weight(1f),
@@ -1071,10 +1193,15 @@ fun Queue(
                         IconButton(
                             onClick = { locked = !locked },
                             modifier = Modifier.padding(horizontal = 6.dp),
+                            colors = IconButtonDefaults.iconButtonColors(
+                                containerColor = queueSurface,
+                                contentColor = if (locked) CustomColorPrimary else CustomColorTextSecondary,
+                            ),
                         ) {
                             Icon(
                                 painter = painterResource(if (locked) R.drawable.lock else R.drawable.lock_open),
                                 contentDescription = null,
+                                tint = if (locked) CustomColorPrimary else CustomColorTextSecondary,
                             )
                         }
                     }
@@ -1092,11 +1219,13 @@ fun Queue(
                                 queueWindows.size,
                             ),
                         style = MaterialTheme.typography.bodyMedium,
+                        color = CustomColorTextSecondary,
                     )
 
                     Text(
                         text = makeTimeString(queueLength * 1000L),
                         style = MaterialTheme.typography.bodyMedium,
+                        color = CustomColorTextMetadata,
                     )
                 }
             }
@@ -1120,19 +1249,26 @@ fun Queue(
                 Row(
                     modifier =
                         Modifier
-                            .height(48.dp),
+                            .height(48.dp)
+                            .background(queueSurfaceHigh),
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
                     IconButton(
                         onClick = onExitSelectionMode,
+                        colors = IconButtonDefaults.iconButtonColors(
+                            containerColor = Color.Transparent,
+                            contentColor = CustomColorTextSecondary,
+                        ),
                     ) {
                         Icon(
                             painter = painterResource(R.drawable.close),
                             contentDescription = null,
+                            tint = CustomColorTextSecondary,
                         )
                     }
                     Text(
                         text = pluralStringResource(R.plurals.n_selected, count, count),
+                        color = CustomColorTextPrimary,
                         modifier = Modifier.weight(1f),
                     )
                     Checkbox(
@@ -1147,6 +1283,11 @@ fun Queue(
                                 }
                             }
                         },
+                        colors = CheckboxDefaults.colors(
+                            checkedColor = CustomColorPrimary,
+                            uncheckedColor = CustomColorTextSecondary,
+                            checkmarkColor = CustomColorBackground,
+                        ),
                     )
                     IconButton(
                         enabled = count > 0,
@@ -1160,18 +1301,21 @@ fun Queue(
                                 )
                             }
                         },
+                        colors = IconButtonDefaults.iconButtonColors(
+                            containerColor = Color.Transparent,
+                            contentColor = if (count > 0) CustomColorPrimary else CustomColorTextMetadata,
+                            disabledContentColor = CustomColorTextMetadata,
+                        ),
                     ) {
                         Icon(
                             painter = painterResource(R.drawable.more_vert),
                             contentDescription = null,
-                            tint = LocalContentColor.current,
+                            tint = if (count > 0) CustomColorPrimary else CustomColorTextMetadata,
                         )
                     }
                 }
             }
-            if (pureBlack) {
-                HorizontalDivider()
-            }
+            HorizontalDivider(color = CustomColorDivider)
         }
 
         val shuffleModeEnabled by playerConnection.shuffleModeEnabled.collectAsStateWithLifecycle()
@@ -1179,15 +1323,13 @@ fun Queue(
         Box(
             modifier =
                 Modifier
-                    .background(
-                        if (pureBlack) {
-                            Color.Black
-                        } else {
-                            MaterialTheme.colorScheme
-                                .secondaryContainer
-                                .copy(alpha = 0.90f)
-                        },
-                    ).fillMaxWidth()
+                    .background(queueSurfaceHigh)
+                    .border(
+                        width = 1.dp,
+                        color = CustomColorDivider.copy(alpha = 0.65f),
+                        shape = CustomShapeSheet,
+                    )
+                    .fillMaxWidth()
                     .height(
                         ListItemHeight +
                             WindowInsets.systemBars
@@ -1222,6 +1364,7 @@ fun Queue(
                     painter = painterResource(R.drawable.shuffle),
                     contentDescription = null,
                     modifier = Modifier.alpha(finalAlpha),
+                    tint = if (shuffleModeEnabled && !isListenTogetherGuest) CustomColorPrimary else CustomColorTextSecondary,
                 )
             }
 
@@ -1229,6 +1372,7 @@ fun Queue(
                 painter = painterResource(R.drawable.expand_more),
                 contentDescription = null,
                 modifier = Modifier.align(Alignment.Center),
+                tint = CustomColorTextPrimary,
             )
 
             IconButton(
@@ -1249,6 +1393,7 @@ fun Queue(
                         ),
                     contentDescription = null,
                     modifier = Modifier.alpha(finalAlpha),
+                    tint = if (repeatMode != Player.REPEAT_MODE_OFF && !isListenTogetherGuest) CustomColorPrimary else CustomColorTextSecondary,
                 )
             }
         }
@@ -1289,18 +1434,22 @@ private fun PlayerQueueButton(
             .clickable(enabled = enabled, onClick = onClick)
 
     val alphaFactor = if (enabled) 1f else 0.35f
+    val activeBackground = if (playerBackground == PlayerBackgroundStyle.DEFAULT) CustomColorSurfaceHigh else textButtonColor
+    val inactiveBorder = if (playerBackground == PlayerBackgroundStyle.DEFAULT) CustomColorDivider.copy(alpha = 0.6f) else textButtonColor.copy(alpha = 0.3f)
 
     val appliedModifier =
         if (isActive) {
-            modifier.then(buttonModifier.background(textButtonColor)).alpha(alphaFactor)
+            modifier.then(buttonModifier.background(activeBackground)).alpha(alphaFactor)
         } else {
             modifier
                 .then(
-                    buttonModifier.border(
-                        width = 1.dp,
-                        color = textButtonColor.copy(alpha = 0.3f),
-                        shape = shape,
-                    ),
+                    buttonModifier
+                        .background(if (playerBackground == PlayerBackgroundStyle.DEFAULT) CustomColorSurface else Color.Transparent)
+                        .border(
+                            width = 1.dp,
+                            color = inactiveBorder,
+                            shape = shape,
+                        ),
                 ).alpha(alphaFactor)
         }
 
@@ -1324,7 +1473,7 @@ private fun PlayerQueueButton(
         } else {
             val baseTint =
                 if (isActive) {
-                    iconButtonColor
+                    if (playerBackground == PlayerBackgroundStyle.DEFAULT) CustomColorPrimary else iconButtonColor
                 } else {
                     when (playerBackground) {
                         PlayerBackgroundStyle.BLUR, PlayerBackgroundStyle.GRADIENT -> {
@@ -1332,7 +1481,7 @@ private fun PlayerQueueButton(
                         }
 
                         PlayerBackgroundStyle.DEFAULT -> {
-                            MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
+                            CustomColorTextSecondary
                         }
                     }
                 }

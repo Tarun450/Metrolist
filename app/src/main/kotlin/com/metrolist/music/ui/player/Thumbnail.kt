@@ -11,6 +11,7 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.basicMarquee
+import androidx.compose.foundation.border
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.gestures.snapping.rememberSnapFlingBehavior
 import androidx.compose.foundation.layout.Arrangement
@@ -83,6 +84,13 @@ import com.metrolist.music.constants.SwipeThumbnailKey
 import com.metrolist.music.constants.ThumbnailCornerRadius
 import com.metrolist.music.listentogether.RoomRole
 import com.metrolist.music.ui.component.CastButton
+import com.metrolist.music.ui.custom.theme.CustomColorDivider
+import com.metrolist.music.ui.custom.theme.CustomColorSurface
+import com.metrolist.music.ui.custom.theme.CustomColorSurfaceHigh
+import com.metrolist.music.ui.custom.theme.CustomColorSurfaceLowest
+import com.metrolist.music.ui.custom.theme.CustomColorTextMetadata
+import com.metrolist.music.ui.custom.theme.CustomColorTextPrimary
+import com.metrolist.music.ui.custom.theme.CustomColorTextSecondary
 import com.metrolist.music.utils.rememberEnumPreference
 import com.metrolist.music.utils.rememberPreference
 import kotlinx.coroutines.delay
@@ -188,7 +196,7 @@ private fun getMediaItems(
 @Composable
 private fun getTextColor(playerBackground: PlayerBackgroundStyle): Color {
     return when (playerBackground) {
-        PlayerBackgroundStyle.DEFAULT -> MaterialTheme.colorScheme.onBackground
+        PlayerBackgroundStyle.DEFAULT -> CustomColorTextPrimary
         PlayerBackgroundStyle.BLUR -> Color.White
         PlayerBackgroundStyle.GRADIENT -> Color.White
     }
@@ -442,30 +450,33 @@ private fun ThumbnailHeader(
 ) {
     val listenTogetherManager = LocalListenTogetherManager.current
     val listenTogetherRoleState = listenTogetherManager?.role?.collectAsStateWithLifecycle(initialValue = RoomRole.NONE)
-    val isListenTogetherGuest = listenTogetherRoleState?.value == RoomRole.GUEST
     Box(
         modifier = modifier
             .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 8.dp)
+                .padding(horizontal = 16.dp, vertical = 10.dp)
+                .clip(RoundedCornerShape(24.dp))
+                .background(CustomColorSurface)
+                .border(width = 1.dp, color = CustomColorDivider.copy(alpha = 0.35f), shape = RoundedCornerShape(24.dp))
+                .padding(horizontal = 12.dp, vertical = 10.dp)
     ) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier
                 .align(Alignment.Center)
-                .padding(horizontal = 48.dp)
+                .padding(horizontal = 36.dp)
         ) {
             // Listen Together indicator
             if (listenTogetherRoleState?.value != RoomRole.NONE) {
                 Text(
                     text = if (listenTogetherRoleState?.value == RoomRole.HOST) "Hosting Listen Together" else "Listening Together",
                     style = MaterialTheme.typography.titleMedium,
-                    color = textColor
+                    color = CustomColorTextPrimary
                 )
             } else {
                 Text(
                     text = stringResource(R.string.now_playing),
                     style = MaterialTheme.typography.titleMedium,
-                    color = textColor
+                    color = CustomColorTextPrimary
                 )
             }
             val playingFrom = queueTitle ?: albumTitle
@@ -473,8 +484,8 @@ private fun ThumbnailHeader(
                 Spacer(modifier = Modifier.height(4.dp))
                 Text(
                     text = playingFrom,
-                    style = MaterialTheme.typography.titleMedium,
-                    color = textColor.copy(alpha = 0.8f),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = if (textColor == CustomColorTextPrimary) CustomColorTextMetadata else textColor.copy(alpha = 0.8f),
                     maxLines = 1,
                     modifier = Modifier.basicMarquee()
                 )
@@ -560,6 +571,13 @@ private fun ThumbnailItem(
             modifier = Modifier
                 .size(dimensions.thumbnailSize)
                 .clip(RoundedCornerShape(dimensions.cornerRadius))
+                .background(CustomColorSurfaceHigh)
+                .border(
+                    width = 1.dp,
+                    color = CustomColorDivider.copy(alpha = 0.28f),
+                    shape = RoundedCornerShape(dimensions.cornerRadius),
+                )
+                .padding(6.dp)
         ) {
             if (hidePlayerThumbnail) {
                 HiddenThumbnailPlaceholder(textBackgroundColor = textBackgroundColor)
@@ -598,13 +616,13 @@ private fun HiddenThumbnailPlaceholder(
     Box(
         modifier = modifier
             .fillMaxSize()
-            .background(MaterialTheme.colorScheme.surfaceVariant),
+            .background(CustomColorSurfaceLowest),
         contentAlignment = Alignment.Center
     ) {
         Icon(
             painter = painterResource(R.drawable.small_icon),
             contentDescription = stringResource(R.string.hide_player_thumbnail),
-            tint = textBackgroundColor.copy(alpha = 0.7f),
+            tint = if (textBackgroundColor == CustomColorTextPrimary) CustomColorTextSecondary else textBackgroundColor.copy(alpha = 0.7f),
             modifier = Modifier.size(120.dp)
         )
     }
@@ -626,7 +644,7 @@ private fun ThumbnailImage(
                 // Use offscreen compositing for hardware acceleration during animations
                 compositingStrategy = CompositingStrategy.Offscreen
             }
-            .background(MaterialTheme.colorScheme.surfaceVariant)
+            .background(CustomColorSurfaceLowest)
     ) {
         AsyncImage(
             model = ImageRequest.Builder(LocalContext.current)
