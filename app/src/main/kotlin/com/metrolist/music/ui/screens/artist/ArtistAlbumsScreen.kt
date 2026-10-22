@@ -7,11 +7,13 @@ package com.metrolist.music.ui.screens.artist
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.lazy.grid.GridCells
@@ -19,13 +21,17 @@ import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
+
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.TopAppBarScrollBehavior
 import androidx.compose.runtime.Composable
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -56,6 +62,15 @@ import com.metrolist.music.constants.GridThumbnailHeight
 import com.metrolist.music.ui.component.IconButton
 import com.metrolist.music.ui.component.LibraryAlbumGridItem
 import com.metrolist.music.ui.component.LocalMenuState
+import com.metrolist.music.ui.custom.theme.CustomColorBackground
+import com.metrolist.music.ui.custom.theme.CustomColorDivider
+import com.metrolist.music.ui.custom.theme.CustomColorSurfaceHigh
+import com.metrolist.music.ui.custom.theme.CustomColorSurfaceHighest
+import com.metrolist.music.ui.custom.theme.CustomColorTextMetadata
+import com.metrolist.music.ui.custom.theme.CustomColorTextPrimary
+import com.metrolist.music.ui.custom.theme.CustomColorTextSecondary
+import com.metrolist.music.ui.custom.theme.CustomShapeLarge
+import com.metrolist.music.ui.custom.theme.LocalCustomSpacing
 import com.metrolist.music.ui.utils.backToMain
 import com.metrolist.music.utils.rememberEnumPreference
 import com.metrolist.music.viewmodels.ArtistAlbumsViewModel
@@ -67,6 +82,7 @@ fun ArtistAlbumsScreen(
     scrollBehavior: TopAppBarScrollBehavior,
     viewModel: ArtistAlbumsViewModel = hiltViewModel(),
 ) {
+    val spacing = LocalCustomSpacing.current
     val menuState = LocalMenuState.current
     val playerConnection = LocalPlayerConnection.current ?: return
     val isPlaying by playerConnection.isEffectivelyPlaying.collectAsStateWithLifecycle()
@@ -99,7 +115,10 @@ fun ArtistAlbumsScreen(
     val snackbarHostState = remember { SnackbarHostState() }
 
     Box(
-        modifier = Modifier.fillMaxSize(),
+        modifier =
+            Modifier
+                .fillMaxSize()
+                .background(CustomColorBackground),
     ) {
         LazyVerticalGrid(
             state = lazyGridState,
@@ -111,18 +130,36 @@ fun ArtistAlbumsScreen(
                 span = { GridItemSpan(maxLineSpan) },
                 contentType = CONTENT_TYPE_HEADER,
             ) {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier.padding(horizontal = 16.dp),
+                Surface(
+                    color = CustomColorSurfaceHigh,
+                    shape = CustomShapeLarge,
+                    modifier =
+                        Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = spacing.md, vertical = spacing.sm),
                 ) {
-                    Spacer(Modifier.weight(1f))
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier =
+                            Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = spacing.md, vertical = spacing.sm),
+                    ) {
+                        Spacer(Modifier.weight(1f))
 
-                    Text(
-                        text = pluralStringResource(R.plurals.n_album, albums.size, albums.size),
-                        style = MaterialTheme.typography.titleSmall,
-                        color = MaterialTheme.colorScheme.secondary,
-                    )
+                        Text(
+                            text = pluralStringResource(R.plurals.n_album, albums.size, albums.size),
+                            style = MaterialTheme.typography.titleSmall,
+                            color = CustomColorTextMetadata,
+                        )
+                    }
                 }
+
+                HorizontalDivider(
+                    color = CustomColorDivider.copy(alpha = 0.45f),
+                    thickness = 1.dp,
+                    modifier = Modifier.padding(horizontal = spacing.md),
+                )
             }
 
             items(
@@ -142,7 +179,13 @@ fun ArtistAlbumsScreen(
         }
 
         TopAppBar(
-            title = { Text(artist?.artist?.name.orEmpty()) },
+            title = {
+                Text(
+                    text = artist?.artist?.name.orEmpty(),
+                    color = CustomColorTextPrimary,
+                    style = MaterialTheme.typography.titleLarge,
+                )
+            },
             navigationIcon = {
                 IconButton(
                     onClick = navController::navigateUp,
@@ -151,9 +194,16 @@ fun ArtistAlbumsScreen(
                     Icon(
                         painter = painterResource(id = R.drawable.arrow_back),
                         contentDescription = null,
+                        tint = CustomColorTextSecondary,
                     )
                 }
             },
+            colors = TopAppBarDefaults.topAppBarColors(
+                containerColor = CustomColorSurfaceHighest,
+                scrolledContainerColor = CustomColorSurfaceHighest,
+                titleContentColor = CustomColorTextPrimary,
+                navigationIconContentColor = CustomColorTextSecondary,
+            ),
             scrollBehavior = scrollBehavior,
         )
 

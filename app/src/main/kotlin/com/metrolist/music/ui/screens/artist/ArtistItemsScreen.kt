@@ -6,9 +6,13 @@
 package com.metrolist.music.ui.screens.artist
 
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.asPaddingValues
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.grid.GridCells
@@ -20,8 +24,10 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -54,6 +60,13 @@ import com.metrolist.music.ui.component.IconButton
 import com.metrolist.music.ui.component.LocalMenuState
 import com.metrolist.music.ui.component.YouTubeGridItem
 import com.metrolist.music.ui.component.YouTubeListItem
+import com.metrolist.music.ui.custom.theme.CustomColorBackground
+import com.metrolist.music.ui.custom.theme.CustomColorSurfaceHigh
+import com.metrolist.music.ui.custom.theme.CustomColorSurfaceHighest
+import com.metrolist.music.ui.custom.theme.CustomColorTextPrimary
+import com.metrolist.music.ui.custom.theme.CustomColorTextSecondary
+import com.metrolist.music.ui.custom.theme.CustomShapeLarge
+import com.metrolist.music.ui.custom.theme.LocalCustomSpacing
 import com.metrolist.music.ui.component.shimmer.GridItemPlaceHolder
 import com.metrolist.music.ui.component.shimmer.ListItemPlaceHolder
 import com.metrolist.music.ui.component.shimmer.ShimmerHost
@@ -71,6 +84,7 @@ fun ArtistItemsScreen(
     navController: NavController,
     viewModel: ArtistItemsViewModel = hiltViewModel(),
 ) {
+    val spacing = LocalCustomSpacing.current
     val menuState = LocalMenuState.current
     val haptic = LocalHapticFeedback.current
     val playerConnection = LocalPlayerConnection.current ?: return
@@ -104,17 +118,34 @@ fun ArtistItemsScreen(
     }
 
     if (itemsPage == null) {
-        ShimmerHost(
-            modifier = Modifier.windowInsetsPadding(LocalPlayerAwareWindowInsets.current),
+        Box(
+            modifier =
+                Modifier
+                    .fillMaxSize()
+                    .background(CustomColorBackground),
         ) {
-            repeat(8) {
-                ListItemPlaceHolder()
+            Surface(
+                color = CustomColorSurfaceHigh,
+                shape = CustomShapeLarge,
+                modifier =
+                    Modifier
+                        .padding(horizontal = spacing.md, vertical = spacing.sm)
+                        .windowInsetsPadding(LocalPlayerAwareWindowInsets.current),
+            ) {
+                ShimmerHost(
+                    modifier = Modifier.padding(vertical = spacing.xs),
+                ) {
+                    repeat(8) {
+                        ListItemPlaceHolder()
+                    }
+                }
             }
         }
     }
 
     if (itemsPage?.items?.firstOrNull() is SongItem) {
         LazyColumn(
+            modifier = Modifier.background(CustomColorBackground),
             state = lazyListState,
             contentPadding = LocalPlayerAwareWindowInsets.current.asPaddingValues(),
         ) {
@@ -251,6 +282,7 @@ fun ArtistItemsScreen(
         }
     } else {
         LazyVerticalGrid(
+            modifier = Modifier.background(CustomColorBackground),
             state = lazyGridState,
             columns = GridCells.Adaptive(minSize = GridThumbnailHeight + if (gridItemSize == GridItemSize.BIG) 24.dp else (-24).dp),
             contentPadding = LocalPlayerAwareWindowInsets.current.asPaddingValues(),
@@ -375,7 +407,18 @@ fun ArtistItemsScreen(
     }
 
     TopAppBar(
-        title = { Text(title) },
+        colors = TopAppBarDefaults.topAppBarColors(
+            containerColor = CustomColorSurfaceHighest,
+            scrolledContainerColor = CustomColorSurfaceHighest,
+            titleContentColor = CustomColorTextPrimary,
+            navigationIconContentColor = CustomColorTextSecondary,
+        ),
+        title = {
+            Text(
+                text = title,
+                color = CustomColorTextPrimary,
+            )
+        },
         navigationIcon = {
             IconButton(
                 onClick = navController::navigateUp,
@@ -384,6 +427,7 @@ fun ArtistItemsScreen(
                 Icon(
                     painterResource(R.drawable.arrow_back),
                     contentDescription = null,
+                    tint = CustomColorTextSecondary,
                 )
             }
         },

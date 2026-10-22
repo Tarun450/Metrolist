@@ -15,6 +15,7 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.background
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
@@ -40,6 +41,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -133,6 +135,19 @@ import com.metrolist.music.ui.component.OverlayEditButton
 import com.metrolist.music.ui.component.SongListItem
 import com.metrolist.music.ui.component.SortHeader
 import com.metrolist.music.ui.component.TextFieldDialog
+import com.metrolist.music.ui.custom.theme.CustomColorBackground
+import com.metrolist.music.ui.custom.theme.CustomColorDivider
+import com.metrolist.music.ui.custom.theme.CustomColorPrimary
+import com.metrolist.music.ui.custom.theme.CustomColorSurfaceHigh
+import com.metrolist.music.ui.custom.theme.CustomColorSurfaceHighest
+import com.metrolist.music.ui.custom.theme.CustomColorSurfaceLowest
+import com.metrolist.music.ui.custom.theme.CustomColorTextMetadata
+import com.metrolist.music.ui.custom.theme.CustomColorTextPrimary
+import com.metrolist.music.ui.custom.theme.CustomColorTextSecondary
+import com.metrolist.music.ui.custom.theme.CustomShapeCircle
+import com.metrolist.music.ui.custom.theme.CustomShapeLarge
+import com.metrolist.music.ui.custom.theme.CustomShapeMedium
+import com.metrolist.music.ui.custom.theme.LocalCustomSpacing
 import com.metrolist.music.ui.menu.CustomThumbnailMenu
 import com.metrolist.music.ui.menu.LocalPlaylistMenu
 import com.metrolist.music.ui.menu.SelectionSongMenu
@@ -161,6 +176,7 @@ fun LocalPlaylistScreen(
     navController: NavController,
     viewModel: LocalPlaylistViewModel = hiltViewModel(),
 ) {
+    val spacing = LocalCustomSpacing.current
     val context = LocalContext.current
     val menuState = LocalMenuState.current
     val database = LocalDatabase.current
@@ -472,7 +488,10 @@ fun LocalPlaylistScreen(
     }
 
     Box(
-        modifier = Modifier.fillMaxSize(),
+        modifier =
+            Modifier
+                .fillMaxSize()
+                .background(CustomColorBackground),
     ) {
         LazyColumn(
             state = lazyListState,
@@ -505,38 +524,47 @@ fun LocalPlaylistScreen(
                     }
 
                     item(key = "controls_row") {
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
+                        Surface(
+                            color = CustomColorSurfaceHigh,
+                            shape = CustomShapeLarge,
                             modifier =
                                 Modifier
-                                    .padding(start = 16.dp)
+                                    .padding(horizontal = spacing.md, vertical = spacing.sm)
                                     .animateItem(),
                         ) {
-                            SortHeader(
-                                sortType = sortType,
-                                sortDescending = sortDescending,
-                                onSortTypeChange = onSortTypeChange,
-                                onSortDescendingChange = onSortDescendingChange,
-                                sortTypeText = { sortType ->
-                                    when (sortType) {
-                                        PlaylistSongSortType.CUSTOM -> R.string.sort_by_custom
-                                        PlaylistSongSortType.CREATE_DATE -> R.string.sort_by_create_date
-                                        PlaylistSongSortType.NAME -> R.string.sort_by_name
-                                        PlaylistSongSortType.ARTIST -> R.string.sort_by_artist
-                                        PlaylistSongSortType.PLAY_TIME -> R.string.sort_by_play_time
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                modifier =
+                                    Modifier
+                                        .padding(start = spacing.md, end = spacing.xs, top = spacing.sm, bottom = spacing.sm),
+                            ) {
+                                SortHeader(
+                                    sortType = sortType,
+                                    sortDescending = sortDescending,
+                                    onSortTypeChange = onSortTypeChange,
+                                    onSortDescendingChange = onSortDescendingChange,
+                                    sortTypeText = { sortType ->
+                                        when (sortType) {
+                                            PlaylistSongSortType.CUSTOM -> R.string.sort_by_custom
+                                            PlaylistSongSortType.CREATE_DATE -> R.string.sort_by_create_date
+                                            PlaylistSongSortType.NAME -> R.string.sort_by_name
+                                            PlaylistSongSortType.ARTIST -> R.string.sort_by_artist
+                                            PlaylistSongSortType.PLAY_TIME -> R.string.sort_by_play_time
+                                        }
+                                    },
+                                    modifier = Modifier.weight(1f),
+                                )
+                                if (editable) {
+                                    IconButton(
+                                        onClick = { locked = !locked },
+                                        modifier = Modifier.padding(horizontal = 6.dp),
+                                    ) {
+                                        Icon(
+                                            painter = painterResource(if (locked) R.drawable.lock else R.drawable.lock_open),
+                                            contentDescription = null,
+                                            tint = CustomColorTextSecondary,
+                                        )
                                     }
-                                },
-                                modifier = Modifier.weight(1f),
-                            )
-                            if (editable) {
-                                IconButton(
-                                    onClick = { locked = !locked },
-                                    modifier = Modifier.padding(horizontal = 6.dp),
-                                ) {
-                                    Icon(
-                                        painter = painterResource(if (locked) R.drawable.lock else R.drawable.lock_open),
-                                        contentDescription = null,
-                                    )
                                 }
                             }
                         }
@@ -1012,14 +1040,24 @@ fun LocalPlaylistHeader(
         }
     }
 
-    Column(
+    val spacing = LocalCustomSpacing.current
+
+    Surface(
+        color = CustomColorSurfaceLowest,
+        shape = CustomShapeLarge,
         modifier =
             modifier
                 .fillMaxWidth()
-                .padding(top = 8.dp, bottom = 20.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
+                .padding(horizontal = spacing.md, vertical = spacing.sm),
     ) {
-        if (showEditNoteDialog) {
+        Column(
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = spacing.lg, vertical = spacing.xl),
+            horizontalAlignment = Alignment.CenterHorizontally,
+        ) {
+            if (showEditNoteDialog) {
             ActionPromptDialog(
                 title = stringResource(R.string.edit_playlist_cover),
                 onDismiss = { showEditNoteDialog = false },
@@ -1045,9 +1083,8 @@ fun LocalPlaylistHeader(
                 )
             }
         }
-        // Playlist Thumbnail(s) - Large centered with shadow
         Box(
-            modifier = Modifier.padding(top = 8.dp, bottom = 20.dp),
+            modifier = Modifier.padding(bottom = spacing.lg),
         ) {
             when (playlist.thumbnails.size) {
                 0 -> {
@@ -1057,10 +1094,11 @@ fun LocalPlaylistHeader(
                                 .size(240.dp)
                                 .shadow(
                                     elevation = 16.dp,
-                                    shape = RoundedCornerShape(3.dp),
+                                    shape = CustomShapeMedium,
+                                    spotColor = CustomColorPrimary.copy(alpha = 0.18f),
                                 ),
-                        shape = RoundedCornerShape(3.dp),
-                        color = MaterialTheme.colorScheme.surfaceVariant,
+                        shape = CustomShapeMedium,
+                        color = CustomColorSurfaceHigh,
                     ) {
                         Box(
                             modifier = Modifier.fillMaxSize(),
@@ -1070,7 +1108,7 @@ fun LocalPlaylistHeader(
                                 painter = painterResource(R.drawable.queue_music),
                                 contentDescription = null,
                                 modifier = Modifier.size(80.dp),
-                                tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                                tint = CustomColorTextSecondary,
                             )
                         }
                     }
@@ -1078,22 +1116,29 @@ fun LocalPlaylistHeader(
 
                 1 -> {
                     Surface(
+                        color = CustomColorSurfaceHigh,
+                        shape = CustomShapeMedium,
                         modifier =
                             Modifier
-                                .size(240.dp)
                                 .shadow(
                                     elevation = 24.dp,
-                                    shape = RoundedCornerShape(3.dp),
-                                    spotColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.3f),
+                                    shape = CustomShapeMedium,
+                                    spotColor = CustomColorPrimary.copy(alpha = 0.22f),
                                 ),
-                        shape = RoundedCornerShape(3.dp),
                     ) {
-                        AsyncImage(
-                            model = overrideThumbnail.value ?: playlist.thumbnails[0],
-                            contentDescription = null,
-                            contentScale = ContentScale.Crop,
-                            modifier = Modifier.fillMaxSize(),
-                        )
+                        Box(
+                            modifier =
+                                Modifier
+                                    .padding(6.dp)
+                                    .size(240.dp),
+                        ) {
+                            AsyncImage(
+                                model = overrideThumbnail.value ?: playlist.thumbnails[0],
+                                contentDescription = null,
+                                contentScale = ContentScale.Crop,
+                                modifier = Modifier.fillMaxSize(),
+                            )
+                        }
                     }
                     if (editable) {
                         OverlayEditButton(
@@ -1147,17 +1192,22 @@ fun LocalPlaylistHeader(
 
                 else -> {
                     Surface(
+                        color = CustomColorSurfaceHigh,
+                        shape = CustomShapeMedium,
                         modifier =
                             Modifier
-                                .size(240.dp)
                                 .shadow(
                                     elevation = 24.dp,
-                                    shape = RoundedCornerShape(3.dp),
-                                    spotColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.3f),
+                                    shape = CustomShapeMedium,
+                                    spotColor = CustomColorPrimary.copy(alpha = 0.22f),
                                 ),
-                        shape = RoundedCornerShape(3.dp),
                     ) {
-                        Box(modifier = Modifier.fillMaxSize()) {
+                        Box(
+                            modifier =
+                                Modifier
+                                    .padding(6.dp)
+                                    .size(240.dp),
+                        ) {
                             listOf(
                                 Alignment.TopStart,
                                 Alignment.TopEnd,
@@ -1233,13 +1283,14 @@ fun LocalPlaylistHeader(
             text = playlist.playlist.name,
             style = MaterialTheme.typography.headlineMedium,
             fontWeight = FontWeight.Bold,
+            color = CustomColorTextPrimary,
             textAlign = TextAlign.Center,
             maxLines = 2,
             overflow = TextOverflow.Ellipsis,
-            modifier = Modifier.padding(horizontal = 32.dp),
+            modifier = Modifier.padding(horizontal = spacing.md),
         )
 
-        Spacer(modifier = Modifier.height(8.dp))
+        Spacer(modifier = Modifier.height(spacing.xs))
 
         // Metadata - Song Count • Duration
         val songCount =
@@ -1257,19 +1308,26 @@ fun LocalPlaylistHeader(
                 append(durationText)
             }
         }
-        Text(
-            text = metadataString,
-            style = MaterialTheme.typography.bodySmall,
-            color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.7f),
-        )
+        Surface(
+            color = CustomColorSurfaceHigh,
+            shape = CustomShapeLarge,
+            modifier = Modifier.padding(horizontal = spacing.md),
+        ) {
+            Text(
+                text = metadataString,
+                style = MaterialTheme.typography.bodySmall,
+                color = CustomColorTextMetadata,
+                modifier = Modifier.padding(horizontal = spacing.lg, vertical = spacing.sm),
+            )
+        }
 
         val onlineAuthor = onlinePlaylist?.author
         if (onlineAuthor != null) {
-            Spacer(modifier = Modifier.height(4.dp))
+            Spacer(modifier = Modifier.height(spacing.xxs))
 
             Row(
                 verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                horizontalArrangement = Arrangement.spacedBy(spacing.xs),
                 modifier =
                     Modifier.combinedClickable(
                         onClick = {
@@ -1287,37 +1345,44 @@ fun LocalPlaylistHeader(
                         modifier =
                             Modifier
                                 .size(24.dp)
-                                .clip(CircleShape),
+                                .clip(CustomShapeCircle),
                     )
                 }
                 Text(
                     text = onlineAuthor.name,
                     style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.primary,
+                    color = CustomColorTextSecondary,
                 )
             }
         }
 
         val description = onlinePlaylist?.description
         if (!description.isNullOrBlank()) {
-            Spacer(modifier = Modifier.height(4.dp))
+            Spacer(modifier = Modifier.height(spacing.xxs))
 
             ExpandableText(
                 text = description,
-                modifier = Modifier.padding(horizontal = 32.dp),
+                modifier = Modifier.padding(horizontal = spacing.md),
                 collapsedMaxLines = 3,
             )
         }
 
-        Spacer(modifier = Modifier.height(24.dp))
+        Spacer(modifier = Modifier.height(spacing.xl))
 
-        // Action Buttons Row
+        HorizontalDivider(
+            color = CustomColorDivider.copy(alpha = 0.45f),
+            thickness = 1.dp,
+            modifier = Modifier.fillMaxWidth(),
+        )
+
+        Spacer(modifier = Modifier.height(spacing.md))
+
         Row(
             modifier =
                 Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 24.dp),
-            horizontalArrangement = Arrangement.spacedBy(16.dp, Alignment.CenterHorizontally),
+                    .padding(horizontal = spacing.sm),
+            horizontalArrangement = Arrangement.spacedBy(spacing.md, Alignment.CenterHorizontally),
             verticalAlignment = Alignment.CenterVertically,
         ) {
             // Shuffle Button - Smaller secondary button
@@ -1330,8 +1395,8 @@ fun LocalPlaylistHeader(
                         ),
                     )
                 },
-                shape = CircleShape,
-                color = MaterialTheme.colorScheme.surfaceVariant,
+                shape = CustomShapeCircle,
+                color = CustomColorSurfaceHigh,
                 modifier = Modifier.size(48.dp),
             ) {
                 Box(
@@ -1341,6 +1406,7 @@ fun LocalPlaylistHeader(
                     Icon(
                         painter = painterResource(R.drawable.shuffle),
                         contentDescription = stringResource(R.string.shuffle),
+                        tint = CustomColorTextSecondary,
                         modifier = Modifier.size(24.dp),
                     )
                 }
@@ -1356,8 +1422,8 @@ fun LocalPlaylistHeader(
                         ),
                     )
                 },
-                color = MaterialTheme.colorScheme.primary,
-                shape = CircleShape,
+                color = CustomColorPrimary,
+                shape = CustomShapeCircle,
                 modifier = Modifier.size(72.dp),
             ) {
                 Box(
@@ -1367,7 +1433,7 @@ fun LocalPlaylistHeader(
                     Icon(
                         painter = painterResource(R.drawable.play),
                         contentDescription = stringResource(R.string.play),
-                        tint = MaterialTheme.colorScheme.onPrimary,
+                        tint = CustomColorBackground,
                         modifier = Modifier.size(32.dp),
                     )
                 }
@@ -1428,8 +1494,8 @@ fun LocalPlaylistHeader(
                         )
                     }
                 },
-                shape = CircleShape,
-                color = MaterialTheme.colorScheme.surfaceVariant,
+                shape = CustomShapeCircle,
+                color = CustomColorSurfaceHigh,
                 modifier = Modifier.size(48.dp),
             ) {
                 Box(
@@ -1439,9 +1505,11 @@ fun LocalPlaylistHeader(
                     Icon(
                         painter = painterResource(R.drawable.more_vert),
                         contentDescription = null,
+                        tint = CustomColorTextSecondary,
                         modifier = Modifier.size(24.dp),
                     )
                 }
+            }
             }
         }
     }

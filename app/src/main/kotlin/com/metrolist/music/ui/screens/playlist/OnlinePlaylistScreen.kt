@@ -7,6 +7,7 @@ package com.metrolist.music.ui.screens.playlist
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.background
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -25,13 +26,13 @@ import androidx.compose.foundation.layout.union
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
+
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.ContainedLoadingIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -39,9 +40,11 @@ import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -97,6 +100,20 @@ import com.metrolist.music.ui.component.ExpandableText
 import com.metrolist.music.ui.component.IconButton
 import com.metrolist.music.ui.component.LocalMenuState
 import com.metrolist.music.ui.component.YouTubeListItem
+import com.metrolist.music.ui.custom.theme.CustomColorBackground
+import com.metrolist.music.ui.custom.theme.CustomColorDivider
+import com.metrolist.music.ui.custom.theme.CustomColorError
+import com.metrolist.music.ui.custom.theme.CustomColorPrimary
+import com.metrolist.music.ui.custom.theme.CustomColorSurfaceHigh
+import com.metrolist.music.ui.custom.theme.CustomColorSurfaceHighest
+import com.metrolist.music.ui.custom.theme.CustomColorSurfaceLowest
+import com.metrolist.music.ui.custom.theme.CustomColorTextMetadata
+import com.metrolist.music.ui.custom.theme.CustomColorTextPrimary
+import com.metrolist.music.ui.custom.theme.CustomColorTextSecondary
+import com.metrolist.music.ui.custom.theme.CustomShapeCircle
+import com.metrolist.music.ui.custom.theme.CustomShapeLarge
+import com.metrolist.music.ui.custom.theme.CustomShapeMedium
+import com.metrolist.music.ui.custom.theme.LocalCustomSpacing
 import com.metrolist.music.ui.menu.YouTubePlaylistMenu
 import com.metrolist.music.ui.menu.YouTubeSelectionSongMenu
 import com.metrolist.music.ui.menu.YouTubeSongMenu
@@ -115,6 +132,7 @@ fun OnlinePlaylistScreen(
     navController: NavController,
     viewModel: OnlinePlaylistViewModel = hiltViewModel(),
 ) {
+    val spacing = LocalCustomSpacing.current
     val menuState = LocalMenuState.current
     val database = LocalDatabase.current
     val haptic = LocalHapticFeedback.current
@@ -190,7 +208,11 @@ fun OnlinePlaylistScreen(
         BackHandler(onBack = onExitSelectionMode)
     }
 
-    Box(Modifier.fillMaxSize()) {
+    Box(
+        Modifier
+            .fillMaxSize()
+            .background(CustomColorBackground),
+    ) {
         LazyColumn(
             state = lazyListState,
             contentPadding = LocalPlayerAwareWindowInsets.current.union(WindowInsets.ime).asPaddingValues(),
@@ -202,30 +224,56 @@ fun OnlinePlaylistScreen(
                             modifier =
                                 Modifier
                                     .fillParentMaxSize()
-                                    .padding(32.dp),
+                                    .padding(spacing.xxl),
                             contentAlignment = Alignment.Center,
                         ) {
-                            ContainedLoadingIndicator()
+                            Surface(
+                                color = CustomColorSurfaceHigh,
+                                shape = CustomShapeLarge,
+                                modifier = Modifier.fillMaxWidth(),
+                            ) {
+                                Box(
+                                    modifier = Modifier.padding(spacing.xxl),
+                                    contentAlignment = Alignment.Center,
+                                ) {
+                                    ContainedLoadingIndicator()
+                                }
+                            }
                         }
                     }
                 } else if (error != null) {
                     item(key = "error_placeholder") {
-                        Column(
+                        Box(
                             modifier =
                                 Modifier
                                     .fillParentMaxSize()
-                                    .padding(32.dp),
-                            horizontalAlignment = Alignment.CenterHorizontally,
-                            verticalArrangement = Arrangement.Center,
+                                    .padding(spacing.xxl),
+                            contentAlignment = Alignment.Center,
                         ) {
-                            Text(
-                                text = error ?: stringResource(R.string.error_unknown),
-                                style = MaterialTheme.typography.bodyLarge,
-                                textAlign = TextAlign.Center,
-                            )
-                            Spacer(modifier = Modifier.height(16.dp))
-                            androidx.compose.material3.TextButton(onClick = { viewModel.retry() }) {
-                                Text(stringResource(R.string.retry))
+                            Surface(
+                                color = CustomColorSurfaceHigh,
+                                shape = CustomShapeLarge,
+                                modifier = Modifier.fillMaxWidth(),
+                            ) {
+                                Column(
+                                    modifier = Modifier.padding(spacing.xxl),
+                                    horizontalAlignment = Alignment.CenterHorizontally,
+                                    verticalArrangement = Arrangement.Center,
+                                ) {
+                                    Text(
+                                        text = error ?: stringResource(R.string.error_unknown),
+                                        style = MaterialTheme.typography.bodyLarge,
+                                        color = CustomColorError,
+                                        textAlign = TextAlign.Center,
+                                    )
+                                    Spacer(modifier = Modifier.height(spacing.md))
+                                    androidx.compose.material3.TextButton(onClick = { viewModel.retry() }) {
+                                        Text(
+                                            text = stringResource(R.string.retry),
+                                            color = CustomColorPrimary,
+                                        )
+                                    }
+                                }
                             }
                         }
                     }
@@ -235,13 +283,25 @@ fun OnlinePlaylistScreen(
                             modifier =
                                 Modifier
                                     .fillParentMaxSize()
-                                    .padding(32.dp),
+                                    .padding(spacing.xxl),
                             contentAlignment = Alignment.Center,
                         ) {
-                            Text(
-                                text = stringResource(R.string.playlist_is_empty),
-                                style = MaterialTheme.typography.bodyLarge,
-                            )
+                            Surface(
+                                color = CustomColorSurfaceHigh,
+                                shape = CustomShapeLarge,
+                                modifier = Modifier.fillMaxWidth(),
+                            ) {
+                                Box(
+                                    modifier = Modifier.padding(spacing.xxl),
+                                    contentAlignment = Alignment.Center,
+                                ) {
+                                    Text(
+                                        text = stringResource(R.string.playlist_is_empty),
+                                        style = MaterialTheme.typography.bodyLarge,
+                                        color = CustomColorTextSecondary,
+                                    )
+                                }
+                            }
                         }
                     }
                 }
@@ -360,6 +420,13 @@ fun OnlinePlaylistScreen(
         }
 
         TopAppBar(
+            colors = TopAppBarDefaults.topAppBarColors(
+                containerColor = CustomColorSurfaceHighest,
+                scrolledContainerColor = CustomColorSurfaceHighest,
+                titleContentColor = CustomColorTextPrimary,
+                navigationIconContentColor = CustomColorTextSecondary,
+                actionIconContentColor = CustomColorTextSecondary,
+            ),
             title = {
                 if (inSelectMode) {
                     Text(
@@ -391,6 +458,11 @@ fun OnlinePlaylistScreen(
                                 focusedIndicatorColor = Color.Transparent,
                                 unfocusedIndicatorColor = Color.Transparent,
                                 disabledIndicatorColor = Color.Transparent,
+                                focusedTextColor = CustomColorTextPrimary,
+                                unfocusedTextColor = CustomColorTextPrimary,
+                                focusedPlaceholderColor = CustomColorTextMetadata,
+                                unfocusedPlaceholderColor = CustomColorTextMetadata,
+                                cursorColor = CustomColorPrimary,
                             ),
                         modifier =
                             Modifier
@@ -398,7 +470,7 @@ fun OnlinePlaylistScreen(
                                 .focusRequester(focusRequester),
                     )
                 } else if (lazyListState.firstVisibleItemIndex > 0) {
-                    Text(playlist?.title ?: "")
+                    Text(playlist?.title ?: "", color = CustomColorTextPrimary)
                 }
             },
             navigationIcon = {
@@ -425,6 +497,7 @@ fun OnlinePlaylistScreen(
                                 if (inSelectMode) R.drawable.close else R.drawable.arrow_back,
                             ),
                         contentDescription = null,
+                        tint = CustomColorTextSecondary,
                     )
                 }
             },
@@ -459,6 +532,7 @@ fun OnlinePlaylistScreen(
                         Icon(
                             painter = painterResource(R.drawable.more_vert),
                             contentDescription = null,
+                            tint = CustomColorTextSecondary,
                         )
                     }
                 } else if (!isSearching) {
@@ -468,6 +542,7 @@ fun OnlinePlaylistScreen(
                         Icon(
                             painter = painterResource(R.drawable.search),
                             contentDescription = null,
+                            tint = CustomColorTextSecondary,
                         )
                     }
                 }
@@ -491,6 +566,7 @@ private fun OnlinePlaylistHeader(
     isPodcastPlaylist: Boolean = false,
     modifier: Modifier = Modifier,
 ) {
+    val spacing = LocalCustomSpacing.current
     val navController = LocalNavController.current
     val playerConnection = LocalPlayerConnection.current ?: return
     val listenTogetherManager = LocalListenTogetherManager.current
@@ -499,246 +575,273 @@ private fun OnlinePlaylistHeader(
     val menuState = LocalMenuState.current
     val syncUtils = LocalSyncUtils.current
 
-    Column(
+    Surface(
+        color = CustomColorSurfaceLowest,
+        shape = CustomShapeLarge,
         modifier =
             modifier
                 .fillMaxWidth()
-                .padding(top = 8.dp, bottom = 20.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
+                .padding(horizontal = spacing.md, vertical = spacing.sm),
     ) {
-        Surface(
-            modifier =
-                Modifier
-                    .size(240.dp)
-                    .shadow(
-                        elevation = 24.dp,
-                        shape = RoundedCornerShape(3.dp),
-                        spotColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.3f),
-                    ),
-            shape = RoundedCornerShape(3.dp),
-        ) {
-            AsyncImage(
-                model = ImageRequest.Builder(LocalContext.current).data(playlist.thumbnail?.resize(1080, 1080)).build(),
-                contentDescription = null,
-                contentScale = ContentScale.Crop,
-                modifier = Modifier.fillMaxSize(),
-            )
-        }
-
-        Spacer(modifier = Modifier.height(20.dp))
-
-        Text(
-            text = playlist.title,
-            style = MaterialTheme.typography.headlineMedium,
-            fontWeight = FontWeight.Bold,
-            textAlign = TextAlign.Center,
-            maxLines = 2,
-            overflow = TextOverflow.Ellipsis,
-            modifier = Modifier.padding(horizontal = 32.dp),
-        )
-
-        Spacer(modifier = Modifier.height(8.dp))
-
-        // Creator row - channel avatar + name centered
-        val author = playlist.author
-        if (author != null) {
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-                modifier =
-                    Modifier.combinedClickable(
-                        onClick = {
-                            if (author.id != null) {
-                                navController.navigate("artist/${author.id}")
-                            }
-                        },
-                    ),
-            ) {
-                if (playlist.authorAvatarUrl != null) {
-                    AsyncImage(
-                        model = playlist.authorAvatarUrl,
-                        contentDescription = null,
-                        contentScale = ContentScale.Crop,
-                        modifier =
-                            Modifier
-                                .size(24.dp)
-                                .clip(CircleShape),
-                    )
-                }
-                Text(
-                    text = author.name,
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.primary,
-                )
-            }
-
-            Spacer(modifier = Modifier.height(4.dp))
-        }
-
-        // Metadata row - song count, duration
-        val totalDuration = songs.sumOf { it.duration ?: 0 }
-        val nSongs = pluralStringResource(
-            if (isPodcastPlaylist) R.plurals.n_episode else R.plurals.n_song,
-            songs.size,
-            songs.size,
-        )
-        val durationText = if (totalDuration > 0) makeTimeString(totalDuration * 1000L) else null
-        val metadataText = buildString {
-            append(nSongs)
-            if (durationText != null) {
-                append(" ")
-                append(durationText)
-            }
-        }
-        Text(
-            text = metadataText,
-            style = MaterialTheme.typography.bodySmall,
-            color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.7f),
-            textAlign = TextAlign.Center,
-            modifier = Modifier.padding(horizontal = 32.dp),
-        )
-
-        Spacer(modifier = Modifier.height(4.dp))
-
-        // Description
-        val description = playlist.description
-        if (!description.isNullOrBlank()) {
-            ExpandableText(
-                text = description,
-                modifier = Modifier.padding(horizontal = 32.dp),
-                collapsedMaxLines = 3,
-            )
-        }
-
-        Spacer(modifier = Modifier.height(24.dp))
-
-        Row(
+        Column(
             modifier =
                 Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 24.dp),
-            horizontalArrangement = Arrangement.spacedBy(16.dp, Alignment.CenterHorizontally),
-            verticalAlignment = Alignment.CenterVertically,
+                    .padding(horizontal = spacing.lg, vertical = spacing.xl),
+            horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            // Like Button - Smaller secondary button
             Surface(
-                onClick = {
-                    if (dbPlaylist != null) {
-                        database.transaction {
-                            val currentPlaylist = dbPlaylist.playlist
-                            update(currentPlaylist, playlist)
-                            update(currentPlaylist.toggleLike())
-                        }
-                    } else {
-                        coroutineScope.launch(Dispatchers.IO) {
-                            val playlistEntity =
-                                PlaylistEntity(
-                                    name = playlist.title,
-                                    browseId = playlist.id,
-                                    thumbnailUrl = playlist.thumbnail,
-                                    isEditable = playlist.isEditable,
-                                    remoteSongCount =
-                                        playlist.songCountText?.let {
-                                            Regex("""\d+""").find(it)?.value?.toIntOrNull()
-                                        },
-                                    playEndpointParams = playlist.playEndpoint?.params,
-                                    shuffleEndpointParams = playlist.shuffleEndpoint?.params,
-                                    radioEndpointParams = playlist.radioEndpoint?.params,
-                                ).toggleLike()
-                            val songMetadata = songs.map { it.toMediaMetadata() }
-                            database.withTransaction {
-                                insert(playlistEntity)
-                                songMetadata.onEach { insert(it) }
-                                val songIds = songMetadata.map { it.id to it.setVideoId }
-                                val createdPlaylist =
-                                    database.playlistBlocking(playlistEntity.id)
-                                        ?: throw IllegalStateException("Failed to create playlist")
-                                database.addSongsToPlaylist(createdPlaylist, songIds)
+                color = CustomColorSurfaceHigh,
+                shape = CustomShapeMedium,
+                tonalElevation = 0.dp,
+                shadowElevation = 0.dp,
+                modifier =
+                    Modifier
+                        .padding(bottom = spacing.lg)
+                        .shadow(
+                            elevation = 24.dp,
+                            shape = CustomShapeMedium,
+                            spotColor = CustomColorPrimary.copy(alpha = 0.22f),
+                        ),
+            ) {
+                Box(
+                    modifier =
+                        Modifier
+                            .padding(6.dp)
+                            .size(240.dp),
+                ) {
+                    AsyncImage(
+                        model = ImageRequest.Builder(LocalContext.current).data(playlist.thumbnail?.resize(1080, 1080)).build(),
+                        contentDescription = null,
+                        contentScale = ContentScale.Crop,
+                        modifier = Modifier.fillMaxSize(),
+                    )
+                }
+            }
+
+            Text(
+                text = playlist.title,
+                style = MaterialTheme.typography.headlineMedium,
+                fontWeight = FontWeight.Bold,
+                color = CustomColorTextPrimary,
+                textAlign = TextAlign.Center,
+                maxLines = 2,
+                overflow = TextOverflow.Ellipsis,
+                modifier = Modifier.padding(horizontal = spacing.md),
+            )
+
+            Spacer(modifier = Modifier.height(spacing.xs))
+
+            val author = playlist.author
+            if (author != null) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(spacing.xs),
+                    modifier =
+                        Modifier.combinedClickable(
+                            onClick = {
+                                if (author.id != null) {
+                                    navController.navigate("artist/${author.id}")
+                                }
+                            },
+                        ),
+                ) {
+                    if (playlist.authorAvatarUrl != null) {
+                        AsyncImage(
+                            model = playlist.authorAvatarUrl,
+                            contentDescription = null,
+                            contentScale = ContentScale.Crop,
+                            modifier =
+                                Modifier
+                                    .size(24.dp)
+                                    .clip(CustomShapeCircle),
+                        )
+                    }
+                    Text(
+                        text = author.name,
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = CustomColorTextSecondary,
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(spacing.xxs))
+            }
+
+            val totalDuration = songs.sumOf { it.duration ?: 0 }
+            val nSongs = pluralStringResource(
+                if (isPodcastPlaylist) R.plurals.n_episode else R.plurals.n_song,
+                songs.size,
+                songs.size,
+            )
+            val durationText = if (totalDuration > 0) makeTimeString(totalDuration * 1000L) else null
+            val metadataText = buildString {
+                append(nSongs)
+                if (durationText != null) {
+                    append(" ")
+                    append(durationText)
+                }
+            }
+            Surface(
+                color = CustomColorSurfaceHigh,
+                shape = CustomShapeLarge,
+                modifier = Modifier.padding(horizontal = spacing.md),
+            ) {
+                Text(
+                    text = metadataText,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = CustomColorTextMetadata,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.padding(horizontal = spacing.lg, vertical = spacing.sm),
+                )
+            }
+
+            Spacer(modifier = Modifier.height(spacing.xxs))
+
+            val description = playlist.description
+            if (!description.isNullOrBlank()) {
+                ExpandableText(
+                    text = description,
+                    modifier = Modifier.padding(horizontal = spacing.md),
+                    collapsedMaxLines = 3,
+                )
+            }
+
+            Spacer(modifier = Modifier.height(spacing.xl))
+
+            HorizontalDivider(
+                color = CustomColorDivider.copy(alpha = 0.45f),
+                thickness = 1.dp,
+                modifier = Modifier.fillMaxWidth(),
+            )
+
+            Spacer(modifier = Modifier.height(spacing.md))
+
+            Row(
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = spacing.sm),
+                horizontalArrangement = Arrangement.spacedBy(spacing.md, Alignment.CenterHorizontally),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Surface(
+                    onClick = {
+                        if (dbPlaylist != null) {
+                            database.transaction {
+                                val currentPlaylist = dbPlaylist.playlist
+                                update(currentPlaylist, playlist)
+                                update(currentPlaylist.toggleLike())
+                            }
+                        } else {
+                            coroutineScope.launch(Dispatchers.IO) {
+                                val playlistEntity =
+                                    PlaylistEntity(
+                                        name = playlist.title,
+                                        browseId = playlist.id,
+                                        thumbnailUrl = playlist.thumbnail,
+                                        isEditable = playlist.isEditable,
+                                        remoteSongCount =
+                                            playlist.songCountText?.let {
+                                                Regex("""\d+""").find(it)?.value?.toIntOrNull()
+                                            },
+                                        playEndpointParams = playlist.playEndpoint?.params,
+                                        shuffleEndpointParams = playlist.shuffleEndpoint?.params,
+                                        radioEndpointParams = playlist.radioEndpoint?.params,
+                                    ).toggleLike()
+                                val songMetadata = songs.map { it.toMediaMetadata() }
+                                database.withTransaction {
+                                    insert(playlistEntity)
+                                    songMetadata.onEach { insert(it) }
+                                    val songIds = songMetadata.map { it.id to it.setVideoId }
+                                    val createdPlaylist =
+                                        database.playlistBlocking(playlistEntity.id)
+                                            ?: throw IllegalStateException("Failed to create playlist")
+                                    database.addSongsToPlaylist(createdPlaylist, songIds)
+                                }
                             }
                         }
-                    }
-                },
-                shape = CircleShape,
-                color = MaterialTheme.colorScheme.surfaceVariant,
-                modifier = Modifier.size(48.dp),
-            ) {
-                Box(
-                    modifier = Modifier.fillMaxSize(),
-                    contentAlignment = Alignment.Center,
+                    },
+                    shape = CustomShapeCircle,
+                    color = CustomColorSurfaceHigh,
+                    modifier = Modifier.size(48.dp),
                 ) {
-                    Icon(
-                        painter =
-                            painterResource(
-                                if (dbPlaylist?.playlist?.bookmarkedAt != null) R.drawable.favorite else R.drawable.favorite_border,
-                            ),
-                        contentDescription = null,
-                        tint =
-                            if (dbPlaylist?.playlist?.bookmarkedAt != null) {
-                                MaterialTheme.colorScheme.error
-                            } else {
-                                MaterialTheme.colorScheme.onSurfaceVariant
-                            },
-                        modifier = Modifier.size(24.dp),
-                    )
-                }
-            }
-
-            // Play Button - Larger primary circular button
-            Surface(
-                onClick = {
-                    if (!isListenTogetherGuest && songs.isNotEmpty()) {
-                        playerConnection.playQueue(
-                            YouTubePlaylistQueue(
-                                playlistId = playlist.id,
-                                playlistTitle = playlist.title,
-                                initialSongs = songs,
-                                initialContinuation = continuation,
-                            ),
+                    Box(
+                        modifier = Modifier.fillMaxSize(),
+                        contentAlignment = Alignment.Center,
+                    ) {
+                        Icon(
+                            painter =
+                                painterResource(
+                                    if (dbPlaylist?.playlist?.bookmarkedAt != null) R.drawable.favorite else R.drawable.favorite_border,
+                                ),
+                            contentDescription = null,
+                            tint =
+                                if (dbPlaylist?.playlist?.bookmarkedAt != null) {
+                                    CustomColorError
+                                } else {
+                                    CustomColorTextSecondary
+                                },
+                            modifier = Modifier.size(24.dp),
                         )
                     }
-                },
-                color = MaterialTheme.colorScheme.primary,
-                shape = CircleShape,
-                modifier = Modifier.size(72.dp),
-            ) {
-                Box(
-                    contentAlignment = Alignment.Center,
-                    modifier = Modifier.fillMaxSize(),
-                ) {
-                    Icon(
-                        painter = painterResource(R.drawable.play),
-                        contentDescription = stringResource(R.string.play),
-                        tint = MaterialTheme.colorScheme.onPrimary,
-                        modifier = Modifier.size(32.dp),
-                    )
                 }
-            }
 
-            // Menu Button - Smaller secondary button
-            Surface(
-                onClick = {
-                    menuState.show {
-                        YouTubePlaylistMenu(
-                            playlist = playlist,
-                            songs = songs,
-                            coroutineScope = coroutineScope,
-                            onDismiss = menuState::dismiss,
+                Surface(
+                    onClick = {
+                        if (!isListenTogetherGuest && songs.isNotEmpty()) {
+                            playerConnection.playQueue(
+                                YouTubePlaylistQueue(
+                                    playlistId = playlist.id,
+                                    playlistTitle = playlist.title,
+                                    initialSongs = songs,
+                                    initialContinuation = continuation,
+                                ),
+                            )
+                        }
+                    },
+                    color = CustomColorPrimary,
+                    shape = CustomShapeCircle,
+                    modifier = Modifier.size(72.dp),
+                ) {
+                    Box(
+                        contentAlignment = Alignment.Center,
+                        modifier = Modifier.fillMaxSize(),
+                    ) {
+                        Icon(
+                            painter = painterResource(R.drawable.play),
+                            contentDescription = stringResource(R.string.play),
+                            tint = CustomColorBackground,
+                            modifier = Modifier.size(32.dp),
                         )
                     }
-                },
-                shape = CircleShape,
-                color = MaterialTheme.colorScheme.surfaceVariant,
-                modifier = Modifier.size(48.dp),
-            ) {
-                Box(
-                    modifier = Modifier.fillMaxSize(),
-                    contentAlignment = Alignment.Center,
+                }
+
+                Surface(
+                    onClick = {
+                        menuState.show {
+                            YouTubePlaylistMenu(
+                                playlist = playlist,
+                                songs = songs,
+                                coroutineScope = coroutineScope,
+                                onDismiss = menuState::dismiss,
+                            )
+                        }
+                    },
+                    shape = CustomShapeCircle,
+                    color = CustomColorSurfaceHigh,
+                    modifier = Modifier.size(48.dp),
                 ) {
-                    Icon(
-                        painter = painterResource(R.drawable.more_vert),
-                        contentDescription = null,
-                        modifier = Modifier.size(24.dp),
-                    )
+                    Box(
+                        modifier = Modifier.fillMaxSize(),
+                        contentAlignment = Alignment.Center,
+                    ) {
+                        Icon(
+                            painter = painterResource(R.drawable.more_vert),
+                            contentDescription = null,
+                            tint = CustomColorTextSecondary,
+                            modifier = Modifier.size(24.dp),
+                        )
+                    }
                 }
             }
         }

@@ -10,6 +10,7 @@ import android.content.ClipboardManager
 import android.content.Context
 import android.widget.Toast
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
@@ -39,6 +40,7 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LocalContentColor
@@ -46,6 +48,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
@@ -111,6 +114,20 @@ import com.metrolist.music.ui.component.NavigationTitle
 import com.metrolist.music.ui.component.SongListItem
 import com.metrolist.music.ui.component.YouTubeGridItem
 import com.metrolist.music.ui.component.YouTubeListItem
+import com.metrolist.music.ui.custom.theme.CustomColorBackground
+import com.metrolist.music.ui.custom.theme.CustomColorDivider
+import com.metrolist.music.ui.custom.theme.CustomColorError
+import com.metrolist.music.ui.custom.theme.CustomColorPrimary
+import com.metrolist.music.ui.custom.theme.CustomColorSurface
+import com.metrolist.music.ui.custom.theme.CustomColorSurfaceHigh
+import com.metrolist.music.ui.custom.theme.CustomColorSurfaceHighest
+import com.metrolist.music.ui.custom.theme.CustomColorSurfaceLowest
+import com.metrolist.music.ui.custom.theme.CustomColorTextMetadata
+import com.metrolist.music.ui.custom.theme.CustomColorTextPrimary
+import com.metrolist.music.ui.custom.theme.CustomColorTextSecondary
+import com.metrolist.music.ui.custom.theme.CustomShapeLarge
+import com.metrolist.music.ui.custom.theme.CustomShapePill
+import com.metrolist.music.ui.custom.theme.LocalCustomSpacing
 import com.metrolist.music.ui.component.shimmer.ButtonPlaceholder
 import com.metrolist.music.ui.component.shimmer.ListItemPlaceHolder
 import com.metrolist.music.ui.component.shimmer.ShimmerHost
@@ -138,6 +155,7 @@ fun ArtistScreen(
     navController: NavController,
     viewModel: ArtistViewModel = hiltViewModel(),
 ) {
+    val spacing = LocalCustomSpacing.current
     val context = LocalContext.current
     val database = LocalDatabase.current
     val menuState = LocalMenuState.current
@@ -195,7 +213,10 @@ fun ArtistScreen(
     }
 
     Box(
-        modifier = Modifier.fillMaxSize(),
+        modifier =
+            Modifier
+                .fillMaxSize()
+                .background(CustomColorBackground),
     ) {
         LazyColumn(
             state = lazyListState,
@@ -230,19 +251,23 @@ fun ArtistScreen(
                             )
                         }
                         // Artist Name and Controls Section
-                        Column(
-                            modifier =
-                                Modifier
-                                    .fillMaxWidth()
-                                    .padding(16.dp),
+                        Surface(
+                            color = CustomColorSurfaceLowest,
+                            shape = CustomShapeLarge,
+                            modifier = Modifier.padding(horizontal = spacing.md, vertical = spacing.sm),
                         ) {
-                            // Artist Name Placeholder
+                            Column(
+                                modifier =
+                                    Modifier
+                                        .fillMaxWidth()
+                                        .padding(spacing.md),
+                            ) {
                             TextPlaceholder(
                                 height = 36.dp,
                                 modifier =
                                     Modifier
                                         .fillMaxWidth(0.7f)
-                                        .padding(bottom = 16.dp),
+                                        .padding(bottom = spacing.md),
                             )
 
                             // Buttons Row Placeholder
@@ -262,7 +287,7 @@ fun ArtistScreen(
 
                                 // Right side buttons
                                 Row(
-                                    horizontalArrangement = Arrangement.spacedBy(16.dp),
+                                    horizontalArrangement = Arrangement.spacedBy(spacing.md),
                                     verticalAlignment = Alignment.CenterVertically,
                                 ) {
                                     // Radio Button Placeholder
@@ -286,6 +311,7 @@ fun ArtistScreen(
                                     )
                                 }
                             }
+                        }
                         }
                         // Songs List Placeholder
                         repeat(6) {
@@ -344,110 +370,132 @@ fun ArtistScreen(
                                             },
                                     ),
                         ) {
-                            Column(
-                                modifier =
-                                    Modifier
-                                        .fillMaxWidth()
-                                        .padding(horizontal = 16.dp),
+                            Surface(
+                                color = CustomColorSurface,
+                                shape = CustomShapeLarge,
+                                modifier = Modifier.padding(horizontal = spacing.md),
                             ) {
-                                // Artist Name
-                                Text(
-                                    text = displayArtistName ?: "Unknown",
-                                    style = MaterialTheme.typography.headlineLarge,
-                                    fontWeight = FontWeight.Bold,
-                                    maxLines = 1,
-                                    overflow = TextOverflow.Ellipsis,
-                                    fontSize = 32.sp,
-                                    modifier = Modifier.padding(bottom = 16.dp),
-                                )
-
-                                // Buttons Row
-                                Row(
-                                    modifier = Modifier.fillMaxWidth(),
-                                    verticalAlignment = Alignment.CenterVertically,
+                                Column(
+                                    modifier =
+                                        Modifier
+                                            .fillMaxWidth()
+                                            .padding(spacing.md),
                                 ) {
-                                    // Subscribe Button
-                                    OutlinedButton(
-                                        onClick = {
-                                            viewModel.toggleChannelSubscription()
-                                        },
-                                        colors =
-                                            ButtonDefaults.outlinedButtonColors(
-                                                containerColor =
-                                                    if (isChannelSubscribed) {
-                                                        MaterialTheme.colorScheme.surface
-                                                    } else {
-                                                        Color.Transparent
-                                                    },
-                                            ),
-                                        shape = RoundedCornerShape(50),
-                                        modifier = Modifier.height(40.dp),
-                                    ) {
-                                        Text(
-                                            text = stringResource(if (isChannelSubscribed) R.string.subscribed else R.string.subscribe),
-                                            fontSize = 14.sp,
-                                            color = if (!isChannelSubscribed) MaterialTheme.colorScheme.error else LocalContentColor.current,
-                                        )
-                                    }
-
-                                    Spacer(modifier = Modifier.weight(1f))
+                                    Text(
+                                        text = displayArtistName ?: "Unknown",
+                                        style = MaterialTheme.typography.headlineLarge,
+                                        fontWeight = FontWeight.Bold,
+                                        color = CustomColorTextPrimary,
+                                        maxLines = 1,
+                                        overflow = TextOverflow.Ellipsis,
+                                        fontSize = 32.sp,
+                                        modifier = Modifier.padding(bottom = spacing.md),
+                                    )
 
                                     Row(
-                                        horizontalArrangement = Arrangement.spacedBy(16.dp),
+                                        modifier = Modifier.fillMaxWidth(),
                                         verticalAlignment = Alignment.CenterVertically,
                                     ) {
-                                        // Radio Button
-                                        if (!showLocal && !isGuest) {
-                                            artistPage?.artist?.radioEndpoint?.let { radioEndpoint ->
-                                                OutlinedButton(
-                                                    onClick = {
-                                                        playerConnection.playQueue(YouTubeQueue(radioEndpoint))
+                                        OutlinedButton(
+                                            onClick = {
+                                                viewModel.toggleChannelSubscription()
+                                            },
+                                            colors =
+                                                ButtonDefaults.outlinedButtonColors(
+                                                    containerColor =
+                                                        if (isChannelSubscribed) {
+                                                            CustomColorSurfaceHigh
+                                                        } else {
+                                                            Color.Transparent
+                                                        },
+                                                    contentColor = CustomColorTextPrimary,
+                                                ),
+                                            shape = CustomShapePill,
+                                            border = BorderStroke(
+                                                width = 1.dp,
+                                                color =
+                                                    if (isChannelSubscribed) {
+                                                        CustomColorDivider
+                                                    } else {
+                                                        CustomColorPrimary.copy(alpha = 0.55f)
                                                     },
-                                                    shape = RoundedCornerShape(50),
-                                                    modifier = Modifier.height(40.dp),
-                                                ) {
-                                                    Icon(
-                                                        painter = painterResource(R.drawable.radio),
-                                                        contentDescription = null,
-                                                        modifier = Modifier.size(20.dp),
-                                                    )
-                                                    Spacer(modifier = Modifier.width(8.dp))
-                                                    Text(
-                                                        text = stringResource(R.string.radio),
-                                                        fontSize = 14.sp,
-                                                    )
-                                                }
-                                            }
+                                            ),
+                                            modifier = Modifier.height(40.dp),
+                                        ) {
+                                            Text(
+                                                text = stringResource(if (isChannelSubscribed) R.string.subscribed else R.string.subscribe),
+                                                fontSize = 14.sp,
+                                                color = if (!isChannelSubscribed) CustomColorError else LocalContentColor.current,
+                                            )
                                         }
 
-                                        // Shuffle Button
-                                        if (!showLocal && !isGuest) {
-                                            artistPage?.artist?.shuffleEndpoint?.let { shuffleEndpoint ->
-                                                IconButton(
-                                                    onClick = {
-                                                        playerConnection.playQueue(YouTubeQueue(shuffleEndpoint))
-                                                    },
-                                                    modifier =
-                                                        Modifier
-                                                            .size(48.dp)
-                                                            .background(
-                                                                MaterialTheme.colorScheme.primary,
-                                                                RoundedCornerShape(24.dp),
-                                                            ),
-                                                ) {
-                                                    Icon(
-                                                        painter = painterResource(R.drawable.shuffle),
-                                                        contentDescription = "Shuffle",
-                                                        tint = MaterialTheme.colorScheme.onPrimary,
-                                                        modifier = Modifier.size(20.dp),
-                                                    )
+                                        Spacer(modifier = Modifier.weight(1f))
+
+                                        Row(
+                                            horizontalArrangement = Arrangement.spacedBy(spacing.md),
+                                            verticalAlignment = Alignment.CenterVertically,
+                                        ) {
+                                            if (!showLocal && !isGuest) {
+                                                artistPage?.artist?.radioEndpoint?.let { radioEndpoint ->
+                                                    OutlinedButton(
+                                                        onClick = {
+                                                            playerConnection.playQueue(YouTubeQueue(radioEndpoint))
+                                                        },
+                                                        colors = ButtonDefaults.outlinedButtonColors(
+                                                            containerColor = CustomColorSurfaceHigh,
+                                                            contentColor = CustomColorTextPrimary,
+                                                        ),
+                                                        border = BorderStroke(
+                                                            width = 1.dp,
+                                                            color = CustomColorDivider,
+                                                        ),
+                                                        shape = CustomShapePill,
+                                                        modifier = Modifier.height(40.dp),
+                                                    ) {
+                                                        Icon(
+                                                            painter = painterResource(R.drawable.radio),
+                                                            contentDescription = null,
+                                                            tint = CustomColorTextSecondary,
+                                                            modifier = Modifier.size(20.dp),
+                                                        )
+                                                        Spacer(modifier = Modifier.width(8.dp))
+                                                        Text(
+                                                            text = stringResource(R.string.radio),
+                                                            fontSize = 14.sp,
+                                                            color = CustomColorTextPrimary,
+                                                        )
+                                                    }
+                                                }
+                                            }
+
+                                            if (!showLocal && !isGuest) {
+                                                artistPage?.artist?.shuffleEndpoint?.let { shuffleEndpoint ->
+                                                    IconButton(
+                                                        onClick = {
+                                                            playerConnection.playQueue(YouTubeQueue(shuffleEndpoint))
+                                                        },
+                                                        modifier =
+                                                            Modifier
+                                                                .size(48.dp)
+                                                                .background(
+                                                                    CustomColorPrimary,
+                                                                    RoundedCornerShape(24.dp),
+                                                                ),
+                                                    ) {
+                                                        Icon(
+                                                            painter = painterResource(R.drawable.shuffle),
+                                                            contentDescription = "Shuffle",
+                                                            tint = CustomColorBackground,
+                                                            modifier = Modifier.size(20.dp),
+                                                        )
+                                                    }
                                                 }
                                             }
                                         }
                                     }
                                 }
                             }
-                            Spacer(modifier = Modifier.height(16.dp))
+                            Spacer(modifier = Modifier.height(spacing.md))
                         }
                     }
                 }
@@ -464,63 +512,75 @@ fun ArtistScreen(
                         (showMonthlyListeners && !monthlyListeners.isNullOrEmpty())
                     ) {
                         item(key = "about_artist") {
-                            Column(
+                            Surface(
+                                color = CustomColorSurfaceLowest,
+                                shape = CustomShapeLarge,
                                 modifier =
                                     Modifier
                                         .fillMaxWidth()
-                                        .padding(horizontal = 16.dp)
-                                        .padding(bottom = 16.dp)
+                                        .padding(horizontal = spacing.md)
+                                        .padding(bottom = spacing.md)
                                         .animateItem(),
                             ) {
-                                if (showArtistDescription && (!description.isNullOrEmpty() || !descriptionRuns.isNullOrEmpty())) {
-                                    Text(
-                                        text = stringResource(R.string.about_artist),
-                                        style = MaterialTheme.typography.titleMedium,
-                                        fontWeight = FontWeight.Bold,
-                                        modifier = Modifier.padding(bottom = 8.dp),
-                                    )
-                                }
+                                Column(
+                                    modifier = Modifier.padding(spacing.md),
+                                ) {
+                                    if (showArtistDescription && (!description.isNullOrEmpty() || !descriptionRuns.isNullOrEmpty())) {
+                                        Text(
+                                            text = stringResource(R.string.about_artist),
+                                            style = MaterialTheme.typography.titleMedium,
+                                            fontWeight = FontWeight.Bold,
+                                            color = CustomColorTextPrimary,
+                                            modifier = Modifier.padding(bottom = spacing.xs),
+                                        )
+                                    }
 
-                                if (showArtistSubscriberCount && !subscriberCount.isNullOrEmpty()) {
-                                    Text(
-                                        text = subscriberCount,
-                                        style = MaterialTheme.typography.bodyMedium,
-                                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                        modifier = Modifier.padding(bottom = 4.dp),
-                                    )
-                                }
+                                    if (showArtistSubscriberCount && !subscriberCount.isNullOrEmpty()) {
+                                        Text(
+                                            text = subscriberCount,
+                                            style = MaterialTheme.typography.bodyMedium,
+                                            color = CustomColorTextMetadata,
+                                            modifier = Modifier.padding(bottom = spacing.xxs),
+                                        )
+                                    }
 
-                                if (showMonthlyListeners && !monthlyListeners.isNullOrEmpty()) {
-                                    Text(
-                                        text = monthlyListeners,
-                                        style = MaterialTheme.typography.bodyMedium,
-                                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                        modifier =
-                                            Modifier.padding(
-                                                bottom =
-                                                    if (showArtistDescription &&
-                                                        !description.isNullOrEmpty()
-                                                    ) {
-                                                        8.dp
-                                                    } else {
-                                                        0.dp
-                                                    },
-                                            ),
-                                    )
-                                }
+                                    if (showMonthlyListeners && !monthlyListeners.isNullOrEmpty()) {
+                                        Text(
+                                            text = monthlyListeners,
+                                            style = MaterialTheme.typography.bodyMedium,
+                                            color = CustomColorTextMetadata,
+                                            modifier =
+                                                Modifier.padding(
+                                                    bottom =
+                                                        if (showArtistDescription &&
+                                                            !description.isNullOrEmpty()
+                                                        ) {
+                                                            spacing.xs
+                                                        } else {
+                                                            0.dp
+                                                        },
+                                                ),
+                                        )
+                                    }
 
-                                if (showArtistDescription && (!description.isNullOrEmpty() || !descriptionRuns.isNullOrEmpty())) {
-                                    ExpandableText(
-                                        text = description.orEmpty(),
-                                        runs =
-                                            descriptionRuns?.map {
-                                                LinkSegment(
-                                                    text = it.text,
-                                                    url = it.navigationEndpoint?.urlEndpoint?.url,
-                                                )
-                                            },
-                                        collapsedMaxLines = 3,
-                                    )
+                                    if (showArtistDescription && (!description.isNullOrEmpty() || !descriptionRuns.isNullOrEmpty())) {
+                                        HorizontalDivider(
+                                            color = CustomColorDivider.copy(alpha = 0.45f),
+                                            thickness = 1.dp,
+                                            modifier = Modifier.padding(bottom = spacing.sm),
+                                        )
+                                        ExpandableText(
+                                            text = description.orEmpty(),
+                                            runs =
+                                                descriptionRuns?.map {
+                                                    LinkSegment(
+                                                        text = it.text,
+                                                        url = it.navigationEndpoint?.urlEndpoint?.url,
+                                                    )
+                                                },
+                                            collapsedMaxLines = 3,
+                                        )
+                                    }
                                 }
                             }
                         }
@@ -1013,7 +1073,14 @@ fun ArtistScreen(
     }
 
     TopAppBar(
-        title = { if (!transparentAppBar) Text(displayArtistName.orEmpty()) },
+        title = {
+            if (!transparentAppBar) {
+                Text(
+                    displayArtistName.orEmpty(),
+                    color = CustomColorTextPrimary,
+                )
+            }
+        },
         navigationIcon = {
             IconButton(
                 onClick = navController::navigateUp,
@@ -1022,6 +1089,7 @@ fun ArtistScreen(
                 Icon(
                     painterResource(R.drawable.arrow_back),
                     contentDescription = null,
+                    tint = if (transparentAppBar) Color.White else CustomColorTextSecondary,
                 )
             }
         },
@@ -1039,14 +1107,26 @@ fun ArtistScreen(
                 Icon(
                     painterResource(R.drawable.link),
                     contentDescription = null,
+                    tint = if (transparentAppBar) Color.White else CustomColorTextSecondary,
                 )
             }
         },
         colors =
             if (transparentAppBar) {
-                TopAppBarDefaults.topAppBarColors(containerColor = Color.Transparent)
+                TopAppBarDefaults.topAppBarColors(
+                    containerColor = Color.Transparent,
+                    navigationIconContentColor = Color.White,
+                    actionIconContentColor = Color.White,
+                    titleContentColor = Color.White,
+                )
             } else {
-                TopAppBarDefaults.topAppBarColors()
+                TopAppBarDefaults.topAppBarColors(
+                    containerColor = CustomColorSurfaceHighest,
+                    scrolledContainerColor = CustomColorSurfaceHighest,
+                    navigationIconContentColor = CustomColorTextSecondary,
+                    actionIconContentColor = CustomColorTextSecondary,
+                    titleContentColor = CustomColorTextPrimary,
+                )
             },
     )
 }
