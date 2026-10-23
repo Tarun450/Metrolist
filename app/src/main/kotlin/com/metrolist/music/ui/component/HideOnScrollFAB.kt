@@ -19,9 +19,10 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.material3.FabPosition
 import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.FloatingActionButtonDefaults
 import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SmallFloatingActionButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -31,6 +32,13 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.metrolist.music.LocalPlayerAwareWindowInsets
 import com.metrolist.music.R
+import com.metrolist.music.ui.custom.theme.CustomColorBackground
+import com.metrolist.music.ui.custom.theme.CustomColorPrimary
+import com.metrolist.music.ui.custom.theme.CustomColorSurfaceHigh
+import com.metrolist.music.ui.custom.theme.CustomColorTextPrimary
+import com.metrolist.music.ui.custom.theme.CustomColorTextSecondary
+import com.metrolist.music.ui.custom.theme.CustomShapeCircle
+import com.metrolist.music.ui.custom.theme.LocalCustomSpacing
 import com.metrolist.music.ui.utils.isScrollingUp
 
 @Composable
@@ -41,6 +49,8 @@ fun BoxScope.HideOnScrollFAB(
     onClick: () -> Unit,
     onRecognitionClick: (() -> Unit)? = null,
 ) {
+    val spacing = LocalCustomSpacing.current
+
     AnimatedVisibility(
         visible = visible && lazyListState.isScrollingUp(),
         enter = slideInVertically { it },
@@ -55,13 +65,20 @@ fun BoxScope.HideOnScrollFAB(
     ) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = Modifier.padding(16.dp)
+            modifier = Modifier.padding(spacing.md)
         ) {
             if (onRecognitionClick != null) {
                 SmallFloatingActionButton(
                     onClick = onRecognitionClick,
-                    containerColor = MaterialTheme.colorScheme.secondaryContainer,
-                    contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
+                    shape = CustomShapeCircle,
+                    containerColor = CustomColorSurfaceHigh,
+                    contentColor = CustomColorTextSecondary,
+                    elevation = FloatingActionButtonDefaults.elevation(
+                        defaultElevation = 4.dp,
+                        pressedElevation = 6.dp,
+                        focusedElevation = 4.dp,
+                        hoveredElevation = 4.dp,
+                    ),
                     modifier = Modifier.size(40.dp)
                 ) {
                     Icon(
@@ -70,10 +87,19 @@ fun BoxScope.HideOnScrollFAB(
                         modifier = Modifier.size(20.dp)
                     )
                 }
-                Spacer(modifier = Modifier.height(12.dp))
+                Spacer(modifier = Modifier.height(spacing.sm))
             }
             FloatingActionButton(
                 onClick = onClick,
+                shape = CustomShapeCircle,
+                containerColor = CustomColorPrimary,
+                contentColor = CustomColorBackground,
+                elevation = FloatingActionButtonDefaults.elevation(
+                    defaultElevation = 6.dp,
+                    pressedElevation = 8.dp,
+                    focusedElevation = 6.dp,
+                    hoveredElevation = 6.dp,
+                ),
             ) {
                 Icon(
                     painter = painterResource(icon),

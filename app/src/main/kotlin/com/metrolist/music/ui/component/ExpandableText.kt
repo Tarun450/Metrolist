@@ -28,6 +28,9 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import com.metrolist.music.R
+import com.metrolist.music.ui.custom.theme.CustomColorPrimary
+import com.metrolist.music.ui.custom.theme.CustomColorTextSecondary
+import com.metrolist.music.ui.custom.theme.LocalCustomSpacing
 
 data class LinkSegment(
     val text: String,
@@ -41,11 +44,12 @@ fun ExpandableText(
     modifier: Modifier = Modifier,
     collapsedMaxLines: Int = 3,
 ) {
+    val spacing = LocalCustomSpacing.current
     var isExpanded by rememberSaveable { mutableStateOf(false) }
     var hasOverflow by rememberSaveable { mutableStateOf(false) }
     val uriHandler = LocalUriHandler.current
-    val linkColor = MaterialTheme.colorScheme.primary
-    val bodyColor = MaterialTheme.colorScheme.onSurfaceVariant
+    val linkColor = CustomColorPrimary
+    val bodyColor = CustomColorTextSecondary
 
     val annotatedText: AnnotatedString = remember(text, runs, linkColor) {
         if (runs.isNullOrEmpty()) {
@@ -95,9 +99,9 @@ fun ExpandableText(
             Text(
                 text = stringResource(if (isExpanded) R.string.show_less else R.string.show_more),
                 style = MaterialTheme.typography.labelMedium,
-                color = MaterialTheme.colorScheme.primary,
+                color = CustomColorPrimary,
                 modifier = Modifier
-                    .padding(top = 4.dp)
+                    .padding(top = spacing.xxs)
                     .clickable { isExpanded = !isExpanded }
             )
         }
