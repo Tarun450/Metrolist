@@ -15,31 +15,41 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardColors
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ProvideTextStyle
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.unit.dp
+import com.metrolist.music.ui.custom.theme.CustomColorDivider
+import com.metrolist.music.ui.custom.theme.CustomColorSurfaceHigh
+import com.metrolist.music.ui.custom.theme.CustomColorTextMetadata
+import com.metrolist.music.ui.custom.theme.CustomColorTextPrimary
+import com.metrolist.music.ui.custom.theme.CustomShapeLarge
+import com.metrolist.music.ui.custom.theme.CustomShapeMedium
+import com.metrolist.music.ui.custom.theme.LocalCustomSpacing
 
 @Composable
 fun Material3MenuGroup(
     items: List<Material3MenuItemData>
 ) {
+    val spacing = LocalCustomSpacing.current
+
     Column(
         modifier = Modifier.fillMaxWidth(),
-        verticalArrangement = Arrangement.spacedBy(4.dp)
+        verticalArrangement = Arrangement.spacedBy(spacing.xxs)
     ) {
         items.forEachIndexed { index, item ->
             val shape = when {
-                items.size == 1 -> RoundedCornerShape(24.dp)
-                index == 0 -> RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp, bottomStart = 6.dp, bottomEnd = 6.dp)
-                index == items.size - 1 -> RoundedCornerShape(topStart = 6.dp, topEnd = 6.dp, bottomStart = 24.dp, bottomEnd = 24.dp)
-                else -> RoundedCornerShape(6.dp)
+                items.size == 1 -> CustomShapeLarge
+                index == 0 -> CustomShapeLarge
+                index == items.size - 1 -> CustomShapeLarge
+                else -> CustomShapeMedium
             }
 
             Card(
@@ -48,7 +58,10 @@ fun Material3MenuGroup(
                     .animateContentSize(),
                 shape = shape,
                 colors = item.cardColors ?: CardDefaults.cardColors(
-                    containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f)
+                    containerColor = CustomColorSurfaceHigh
+                ),
+                border = CardDefaults.outlinedCardBorder(enabled = true).copy(
+                    brush = SolidColor(CustomColorDivider.copy(alpha = 0.45f)),
                 ),
                 elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
             ) {
@@ -62,33 +75,47 @@ fun Material3MenuGroup(
 private fun Material3MenuItemRow(
     item: Material3MenuItemData
 ) {
+    val spacing = LocalCustomSpacing.current
+    val enabled = item.onClick != null
+    val titleColor = if (enabled) CustomColorTextPrimary else CustomColorTextMetadata
+    val descriptionColor = if (enabled) CustomColorTextMetadata else CustomColorTextMetadata.copy(alpha = 0.75f)
+
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .clickable(
-                enabled = item.onClick != null,
+                enabled = enabled,
                 onClick = { item.onClick?.invoke() }
             )
-            .padding(horizontal = 20.dp, vertical = 16.dp),
+            .padding(horizontal = spacing.lg, vertical = spacing.md),
         verticalAlignment = Alignment.CenterVertically
     ) {
         item.icon?.let { icon ->
-            icon()
-            Spacer(modifier = Modifier.width(16.dp))
+            androidx.compose.runtime.CompositionLocalProvider(
+                LocalContentColor provides
+                    if (enabled) CustomColorTextMetadata else CustomColorTextMetadata.copy(alpha = 0.75f)
+            ) {
+                icon()
+            }
+            Spacer(modifier = Modifier.width(spacing.md))
         }
 
         Column(
             modifier = Modifier.weight(1f)
         ) {
-            ProvideTextStyle(MaterialTheme.typography.titleMedium) {
+            ProvideTextStyle(
+                MaterialTheme.typography.titleMedium.copy(
+                    color = titleColor,
+                )
+            ) {
                 item.title()
             }
 
             item.description?.let { desc ->
-                Spacer(modifier = Modifier.height(2.dp))
+                Spacer(modifier = Modifier.height(spacing.xxxs))
                 ProvideTextStyle(
                     MaterialTheme.typography.bodyMedium.copy(
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                        color = descriptionColor
                     )
                 ) {
                     desc()
@@ -96,7 +123,7 @@ private fun Material3MenuItemRow(
             }
         }
         item.trailingContent?.let { trailing ->
-            Spacer(modifier = Modifier.width(8.dp))
+            Spacer(modifier = Modifier.width(spacing.xs))
             trailing()
         }
     }

@@ -5,6 +5,7 @@
 
 package com.metrolist.music.ui.component
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Row
@@ -31,6 +32,14 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.metrolist.music.R
 import com.metrolist.music.constants.PlaylistSongSortType
+import com.metrolist.music.ui.custom.theme.CustomColorBackground
+import com.metrolist.music.ui.custom.theme.CustomColorPrimary
+import com.metrolist.music.ui.custom.theme.CustomColorSurfaceHigh
+import com.metrolist.music.ui.custom.theme.CustomColorTextMetadata
+import com.metrolist.music.ui.custom.theme.CustomColorTextPrimary
+import com.metrolist.music.ui.custom.theme.CustomColorTextSecondary
+import com.metrolist.music.ui.custom.theme.CustomShapeLarge
+import com.metrolist.music.ui.custom.theme.LocalCustomSpacing
 
 @Composable
 inline fun <reified T : Enum<T>> SortHeader(
@@ -42,30 +51,38 @@ inline fun <reified T : Enum<T>> SortHeader(
     modifier: Modifier = Modifier,
     showDescending: Boolean? = true,
 ) {
+    val spacing = LocalCustomSpacing.current
     var menuExpanded by remember { mutableStateOf(false) }
 
     Row(
         verticalAlignment = Alignment.CenterVertically,
-        modifier = modifier.padding(vertical = 8.dp),
+        modifier = modifier.padding(vertical = spacing.xs),
     ) {
         Text(
             text = stringResource(sortTypeText(sortType)),
-            color = MaterialTheme.colorScheme.primary,
+            color = CustomColorTextPrimary,
             style = MaterialTheme.typography.labelLarge,
             modifier =
             Modifier
+                .background(
+                    color = CustomColorSurfaceHigh,
+                    shape = CustomShapeLarge,
+                )
                 .clickable(
                     interactionSource = remember { MutableInteractionSource() },
-                    indication = ripple(bounded = false),
+                    indication = ripple(bounded = true),
                 ) {
                     menuExpanded = !menuExpanded
-                }.padding(horizontal = 4.dp, vertical = 8.dp),
+                }
+                .padding(horizontal = spacing.xs, vertical = spacing.xs),
         )
 
         DropdownMenu(
             expanded = menuExpanded,
             onDismissRequest = { menuExpanded = false },
             modifier = Modifier.widthIn(min = 172.dp),
+            containerColor = CustomColorSurfaceHigh,
+            shape = CustomShapeLarge,
         ) {
             enumValues<T>().forEach { type ->
                 DropdownMenuItem(
@@ -73,7 +90,8 @@ inline fun <reified T : Enum<T>> SortHeader(
                         Text(
                             text = stringResource(sortTypeText(type)),
                             fontSize = 16.sp,
-                            fontWeight = FontWeight.Normal,
+                            color = if (sortType == type) CustomColorTextPrimary else CustomColorTextSecondary,
+                            fontWeight = if (sortType == type) FontWeight.Medium else FontWeight.Normal,
                         )
                     },
                     trailingIcon = {
@@ -89,6 +107,7 @@ inline fun <reified T : Enum<T>> SortHeader(
                                 },
                             ),
                             contentDescription = null,
+                            tint = if (sortType == type) CustomColorPrimary else CustomColorTextMetadata,
                         )
                     },
                     onClick = {
@@ -102,11 +121,11 @@ inline fun <reified T : Enum<T>> SortHeader(
         if (sortType != PlaylistSongSortType.CUSTOM && showDescending == true) {
             ResizableIconButton(
                 icon = if (sortDescending) R.drawable.arrow_downward else R.drawable.arrow_upward,
-                color = MaterialTheme.colorScheme.primary,
+                color = CustomColorPrimary,
                 modifier =
                 Modifier
                     .size(32.dp)
-                    .padding(8.dp),
+                    .padding(spacing.xs),
                 onClick = { onSortDescendingChange(!sortDescending) },
             )
         }

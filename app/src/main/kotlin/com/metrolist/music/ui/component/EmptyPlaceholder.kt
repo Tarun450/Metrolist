@@ -21,6 +21,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import com.metrolist.music.ui.custom.theme.CustomColorTextMetadata
+import com.metrolist.music.ui.custom.theme.CustomColorTextSecondary
+import com.metrolist.music.ui.custom.theme.LocalCustomSpacing
 
 @Composable
 fun EmptyPlaceholder(
@@ -28,25 +31,28 @@ fun EmptyPlaceholder(
     text: String,
     modifier: Modifier = Modifier,
 ) {
+    val spacing = LocalCustomSpacing.current
+
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier =
         modifier
             .fillMaxSize()
-            .padding(12.dp),
+            .padding(spacing.md),
     ) {
         Image(
             painter = painterResource(icon),
             contentDescription = null,
-            colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onBackground),
+            colorFilter = ColorFilter.tint(CustomColorTextMetadata),
             modifier = Modifier.size(64.dp),
         )
 
-        Spacer(Modifier.height(12.dp))
+        Spacer(Modifier.height(spacing.xs))
 
         Text(
             text = text,
             style = MaterialTheme.typography.bodyLarge,
+            color = CustomColorTextSecondary,
         )
     }
 }
